@@ -3,7 +3,7 @@ import xml.etree.ElementTree as ET
 import csv
 from typing import List, Dict
 
-from utils.utils import get_post_attrib, ATTRIBUTES, normalize_string
+from utils.utils import get_post_attributes, ATTRIBUTES, normalize_string
 
 
 def get_abs_path(path: str):
@@ -15,6 +15,7 @@ def read_xml(xml_file_path):
     tree = ET.parse(xml_file_path)
     root = tree.getroot()
     _, site, _ = xml_file_path.split("\\")
+    topic = site.split(".")[0]
 
     # CSV Writing
     csv_file_path = os.path.join('./data/stackechange_csv', f'{site}-posts.csv')
@@ -22,7 +23,7 @@ def read_xml(xml_file_path):
         writer = csv.writer(f)
         writer.writerow(ATTRIBUTES)
         for post_row in root:
-            post_dict = get_post_attrib(post_row)
+            post_dict = get_post_attributes(post_row, topic)
             values = [normalize_string(v) for v in post_dict.values()]
             writer.writerow(values)
 
