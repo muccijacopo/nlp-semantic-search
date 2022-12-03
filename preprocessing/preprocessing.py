@@ -34,6 +34,14 @@ class Preprocessing:
         return [w for w in words if w not in stopwords.words('english')]
 
     @staticmethod
-    def tokenize(sentence: str):
+    def tokenize_sentence(sentence: str):
         return nltk.word_tokenize(sentence)
 
+    @staticmethod
+    def tokenize_list_of_sentences(sentences):
+        r: List[List[str]] = []
+        for s in sentences:
+            tokens = Preprocessing.tokenize_sentence(s)
+            tokens = list(filter(Preprocessing.remove_stopwords, tokens))
+            r.append(tokens)
+        return r

@@ -37,5 +37,5 @@ class Embeddings:
 
         """Compute cosine similarity between two sets of words."""
         r = sorted([(d, word2vec.wv.n_similarity(query, d)) for d in corpus if len(d) != 0], key=lambda x: x[1], reverse=True)
-        print(r[:10])
+        return r[:10]
 
