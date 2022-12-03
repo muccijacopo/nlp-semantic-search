@@ -34,5 +34,7 @@ class Query:
             return Embeddings.word2vec_similarity(query, corpus)
         elif algorithm == 'tfidf':
             return Embeddings.tfidf_similarity(query, corpus)
+        elif algorithm == 'lsi' or algorithm == 'lsa':
+            return Embeddings.latent_semantic_indexing(query, corpus)
         else:
             print(f"{algorithm} not implemented")

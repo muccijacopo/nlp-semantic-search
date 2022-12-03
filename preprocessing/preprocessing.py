@@ -23,8 +23,7 @@ class Preprocessing:
 
     @staticmethod
     def apply_decontractions(content: str):
-        return content.replace("won't", "will not").str.replace("can\'t", "can not").str.replace("n\'t",
-                                                                                                              " not").str.replace(
+        return content.replace("won't", "will not").str.replace("can\'t", "can not").str.replace("n\'t"," not").str.replace(
             "\'re", " are").str. \
             replace("\'s", " is").str.replace("\'d", " would").str.replace("\'ll", " will").str. \
             replace("\'t", " not").str.replace("\'ve", " have").str.replace("\'m", " am")
@@ -42,6 +41,6 @@ class Preprocessing:
         r: List[List[str]] = []
         for s in sentences:
             tokens = Preprocessing.tokenize_sentence(s)
-            tokens = list(filter(Preprocessing.remove_stopwords, tokens))
+            tokens = Preprocessing.remove_stopwords(tokens)
             r.append(tokens)
         return r
