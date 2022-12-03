@@ -6,7 +6,7 @@ from preprocessing import Preprocessing
 
 class Query:
     @staticmethod
-    def make_query(query: str, topic: str = 'beer'):
+    def make_query(query: str, topic: str = 'beer', algorithm: str = 'word2vec'):
         # Read dataset
         df = pd.read_csv(f'./data/stackechange_csv/{topic}.stackexchange.com-posts.csv', sep=',')
 
@@ -30,4 +30,9 @@ class Query:
         query = Preprocessing.remove_stopwords(Preprocessing.tokenize_sentence(query))
         print("Query preprocessing finished")
 
-        return Embeddings.word2vec_similarity(query, corpus)
+        if algorithm == 'word2vec':
+            return Embeddings.word2vec_similarity(query, corpus)
+        elif algorithm == 'tfidf':
+            return Embeddings.tfidf_similarity(query, corpus)
+        else:
+            print(f"{algorithm} not implemented")

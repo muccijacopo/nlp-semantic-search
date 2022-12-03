@@ -7,8 +7,10 @@ class Embeddings:
     @staticmethod
     def tfidf_similarity(query: str, corpus: List[List[str]]):
         dictionary = corpora.Dictionary(corpus)
-        # dictionary.token2id
+        # convert corpus to BoW format
         bow_corpus = [dictionary.doc2bow(doc) for doc in corpus]
+
+        # fit model
         tfidf = TfidfModel(bow_corpus)
 
         # transform the whole corpus via TfIdf and store in index matrix
@@ -19,10 +21,9 @@ class Embeddings:
 
         # Compute similarity between query and this index
         sims = index[tfidf[query_bow]]
-        print(f'Similarity between query (2nd document) and 3rd document: {sims[2]}%')
         # Similarity between query and each document sorted
         res = [e for e in sorted(enumerate(sims), key=lambda x: x[1], reverse=True)]
-        return res
+        return res[:10]
 
     @staticmethod
     def word2vec_similarity(query: str, corpus: List[List[str]]):

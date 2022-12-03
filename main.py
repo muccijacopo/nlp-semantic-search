@@ -15,9 +15,9 @@ def import_command():
 
 
 @app.command('query')
-def query_command(query: str, topic: str = typer.Option(..., help="Topic search")):
+def query_command(query: str, topic: str = typer.Option(..., help="Topic search"), algorithm: str = typer.Option(..., help="Algorithm (word2vec, tfidf, ...")):
     start_time = time.time()
-    r = Query.make_query(query, topic)
+    r = Query.make_query(query, topic=topic, algorithm=algorithm)
     print(r)
     print(f"Query execution time: {round(time.time() - start_time, 2)}s")
 
