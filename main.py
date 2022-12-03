@@ -1,4 +1,6 @@
 import time
+from typing import Optional
+
 import typer
 
 from importing import import_xml_to_csv
@@ -8,20 +10,20 @@ app = typer.Typer()
 
 
 @app.command('import')
-def start_xml_import():
+def import_command():
     import_xml_to_csv()
 
 
 @app.command('query')
-def query(s: str):
+def query_command(query: str, topic: str = typer.Option(..., help="Topic search")):
     start_time = time.time()
-    r = Query.make_query(s)
+    r = Query.make_query(query, topic)
     print(r)
     print(f"Query execution time: {round(time.time() - start_time, 2)}s")
 
 
 @app.command()
-def hello():
+def hello_command():
     print("Hello")
 
 
