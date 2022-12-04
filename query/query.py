@@ -15,17 +15,16 @@ class Query:
         except Exception:
             return print("Unknown error during dataset read")
 
+        # Dataset preprocessing
         # TODO: move all preprocessing steps in Preprocessing class (rename to CustomReprocessing)
         # TODO: try different type of Reprocessing (ex. simple_reprocess from Gensim)
-        # Dataset preprocessing
         df['Title'] = df['Title'].apply(Preprocessing.apply_lowercase)
         df['Title'] = df['Title'].apply(Preprocessing.remove_special_characters)
         df['Title'] = df['Title'].apply(Preprocessing.remove_html)
-
         print("Dataset preprocessing finished")
 
+        # Corpus creation
         # TODO: try to decrease tokenization step execution time
-        # Create corpus from dataset (tokenization)
         corpus = Preprocessing.tokenize_list_of_sentences(df['Title'].values)
         print("Dataset tokenization finished. Corpus initialized")
 

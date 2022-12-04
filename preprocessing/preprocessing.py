@@ -4,6 +4,7 @@ from typing import List
 import nltk
 from nltk.corpus import stopwords
 
+
 # Download stopwords dataset
 # nltk.download('punkt')
 
@@ -23,10 +24,17 @@ class Preprocessing:
 
     @staticmethod
     def apply_decontractions(content: str):
-        return content.replace("won't", "will not").str.replace("can\'t", "can not").str.replace("n\'t"," not").str.replace(
-            "\'re", " are").str. \
-            replace("\'s", " is").str.replace("\'d", " would").str.replace("\'ll", " will").str. \
-            replace("\'t", " not").str.replace("\'ve", " have").str.replace("\'m", " am")
+        return content \
+            .replace("won't", "will not") \
+            .replace("can\'t", "can not") \
+            .replace("n\'t", " not") \
+            .replace("\'re", " are") \
+            .replace("\'s", " is") \
+            .replace("\'d", " would") \
+            .replace("\'ll", " will") \
+            .replace("\'t", " not") \
+            .replace("\'ve", " have") \
+            .replace("\'m", " am")
 
     @staticmethod
     def remove_stopwords(words: List[str]):
