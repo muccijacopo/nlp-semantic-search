@@ -8,7 +8,12 @@ class Query:
     @staticmethod
     def make_query(query: str, topic: str = 'beer', model: str = 'word2vec'):
         # Read dataset
-        df = pd.read_csv(f'./data/stackechange_csv/{topic}.stackexchange.com-posts.csv', sep=',')
+        try:
+            df = pd.read_csv(f'./data/stackechange_csv/{topic}.stackexchange.com-posts.csv', sep=',')
+        except FileNotFoundError as e:
+            return print('Topic not found')
+        else:
+            return print("Unknown error during dataset read")
 
         # TODO: move all preprocessing steps in Preprocessing class (rename to CustomReprocessing)
         # TODO: try different type of Reprocessing (ex. simple_reprocess from Gensim)
