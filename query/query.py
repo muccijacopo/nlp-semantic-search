@@ -1,12 +1,12 @@
 import pandas as pd
 
-from embeddings import Embeddings
+from models import Models
 from preprocessing import Preprocessing
 
 
 class Query:
     @staticmethod
-    def make_query(query: str, topic: str = 'beer', algorithm: str = 'word2vec'):
+    def make_query(query: str, topic: str = 'beer', model: str = 'word2vec'):
         # Read dataset
         df = pd.read_csv(f'./data/stackechange_csv/{topic}.stackexchange.com-posts.csv', sep=',')
 
@@ -30,11 +30,11 @@ class Query:
         query = Preprocessing.remove_stopwords(Preprocessing.tokenize_sentence(query))
         print("Query preprocessing finished")
 
-        if algorithm == 'word2vec':
-            return Embeddings.word2vec_similarity(query, corpus)
-        elif algorithm == 'tfidf':
-            return Embeddings.tfidf_similarity(query, corpus)
-        elif algorithm == 'lsi' or algorithm == 'lsa':
-            return Embeddings.latent_semantic_indexing(query, corpus)
+        if model == 'word2vec':
+            return Models.word2vec(query, corpus)
+        elif model == 'tfidf':
+            return Models.tfidf(query, corpus)
+        elif model == 'lsi' or model == 'lsa':
+            return Models.latent_semantic_indexing(query, corpus)
         else:
-            print(f"{algorithm} not implemented")
+            print(f"{model} not implemented")

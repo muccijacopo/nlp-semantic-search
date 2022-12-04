@@ -4,8 +4,7 @@ from gensim.corpora import Dictionary
 from gensim.models import TfidfModel, Word2Vec, LsiModel
 
 
-# TODO: rename Embeddings to Models
-class Embeddings:
+class Models:
 
     @staticmethod
     def create_dictionary(corpus: List[List[str]]):
@@ -20,10 +19,10 @@ class Embeddings:
         return dictionary.doc2bow(doc)
 
     @staticmethod
-    def tfidf_similarity(query: List[str], corpus: List[List[str]]):
-        dictionary = Embeddings.create_dictionary(corpus)
+    def tfidf(query: List[str], corpus: List[List[str]]):
+        dictionary = Models.create_dictionary(corpus)
         # convert corpus to BoW format
-        bow_corpus = Embeddings.corpus_to_bow(corpus, dictionary)
+        bow_corpus = Models.corpus_to_bow(corpus, dictionary)
 
         # fit model
         tfidf = TfidfModel(bow_corpus)
@@ -41,7 +40,7 @@ class Embeddings:
         return res[:10]
 
     @staticmethod
-    def word2vec_similarity(query: List[str], corpus: List[List[str]]):
+    def word2vec(query: List[str], corpus: List[List[str]]):
 
         # Training algorithm: 1 for skip-gram; otherwise CBOW.
         word2vec = Word2Vec(corpus, min_count=10, sg=0, window=10)
@@ -57,9 +56,9 @@ class Embeddings:
 
     @staticmethod
     def latent_semantic_indexing(query: List[str], corpus: List[List[str]]):
-        dictionary = Embeddings.create_dictionary(corpus)
-        query_bow = Embeddings.doc_to_bow(query, dictionary)
-        bow_corpus = Embeddings.corpus_to_bow(corpus, dictionary)
+        dictionary = Models.create_dictionary(corpus)
+        query_bow = Models.doc_to_bow(query, dictionary)
+        bow_corpus = Models.corpus_to_bow(corpus, dictionary)
 
         # fit model
         lsi = LsiModel(bow_corpus, id2word=dictionary, num_topics=10)
