@@ -12,7 +12,7 @@ class Query:
             df = pd.read_csv(f'./data/stackechange_csv/{topic}.stackexchange.com-posts.csv', sep=',')
         except FileNotFoundError as e:
             return print('Topic not found')
-        else:
+        except Exception:
             return print("Unknown error during dataset read")
 
         # TODO: move all preprocessing steps in Preprocessing class (rename to CustomReprocessing)
