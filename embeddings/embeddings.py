@@ -4,6 +4,7 @@ from gensim.corpora import Dictionary
 from gensim.models import TfidfModel, Word2Vec, LsiModel
 
 
+# TODO: rename Embeddings to Models
 class Embeddings:
 
     @staticmethod
@@ -32,7 +33,7 @@ class Embeddings:
         # Compute similarity between query and this index
         sims = index[tfidf[query_bow]]
         # Similarity between query and each document sorted
-        res = [e for e in sorted(enumerate(sims), key=lambda x: x[1], reverse=True)]
+        res = [(corpus[doc_idx], doc_sim) for doc_idx, doc_sim in sorted(enumerate(sims), key=lambda x: x[1], reverse=True)]
         return res[:10]
 
     @staticmethod
