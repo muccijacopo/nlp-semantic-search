@@ -12,14 +12,18 @@ class Embeddings:
         return corpora.Dictionary(corpus)
 
     @staticmethod
-    def corpus_to_bag_of_words(corpus: List[List[str]], dictionary: Dictionary):
+    def corpus_to_bow(corpus: List[List[str]], dictionary: Dictionary):
         return [dictionary.doc2bow(doc) for doc in corpus]
+
+    @staticmethod
+    def doc_to_bow(doc: List[List[str]], dictionary: Dictionary):
+        return dictionary.doc2bow(doc)
 
     @staticmethod
     def tfidf_similarity(query: List[str], corpus: List[List[str]]):
         dictionary = Embeddings.create_dictionary(corpus)
         # convert corpus to BoW format
-        bow_corpus = Embeddings.corpus_to_bag_of_words(corpus, dictionary)
+        bow_corpus = Embeddings.corpus_to_bow(corpus, dictionary)
 
         # fit model
         tfidf = TfidfModel(bow_corpus)
@@ -54,20 +58,19 @@ class Embeddings:
     @staticmethod
     def latent_semantic_indexing(query: List[str], corpus: List[List[str]]):
         dictionary = Embeddings.create_dictionary(corpus)
-        query_bow = dictionary.doc2bow(query)
-        bow_corpus = Embeddings.corpus_to_bag_of_words(corpus, dictionary)
+        query_bow = Embeddings.doc_to_bow(query, dictionary)
+        bow_corpus = Embeddings.corpus_to_bow(corpus, dictionary)
 
         # fit model
-        lsi = LsiModel(bow_corpus, id2word=dictionary, num_topics=2)
+        lsi = LsiModel(bow_corpus, id2word=dictionary, num_topics=10)
 
         # transform corpus to LSI space and index it
         index = similarities.MatrixSimilarity(lsi[bow_corpus])
         # convert the query to LSI space
-        vec_lsi = lsi[query_bow]
+        query_lsi = lsi[query_bow]
 
         # perform a similarity query against the corpus
-        sims = index[vec_lsi]
-        # sort similarities
-        sims = sorted(enumerate(sims), key=lambda x: x[1], reverse=True)[:10]
+        sims = index[query_lsi]
 
-        return[(corpus[doc_idx], doc_sim) for doc_idx, doc_sim in sims]
+        r = [(corpus[doc_idx], doc_sim) for doc_idx, doc_sim in sorted(enumerate(sims), key=lambda x: x[1], reverse=True)]
+        return r[:10]
