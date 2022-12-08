@@ -19,6 +19,11 @@ class Models:
         return dictionary.doc2bow(doc)
 
     @staticmethod
+    def compute_word2vec_similarity(model: Word2Vec, ws1: List[str], ws2: List[str]):
+        """Compute cosine similarity between two sets of words."""
+        return model.wv.n_similarity(ws1, ws2)
+
+    @staticmethod
     def tfidf(query: List[str], corpus: List[List[str]]):
         dictionary = Models.create_dictionary(corpus)
         # convert corpus to BoW format
@@ -36,8 +41,9 @@ class Models:
         # Compute similarity between query and this index
         sims = index[tfidf[query_bow]]
         # Similarity between query and each document sorted
-        res = [(corpus[doc_idx], doc_sim) for doc_idx, doc_sim in sorted(enumerate(sims), key=lambda x: x[1], reverse=True)]
-        return res[:10]
+
+        # Return first 10 most similar documents
+        return [(doc_idx, doc_sim) for doc_idx, doc_sim in sorted(enumerate(sims), key=lambda x: x[1], reverse=True)[:10]]
 
     @staticmethod
     def word2vec(query: List[str], corpus: List[List[str]]):
@@ -50,9 +56,9 @@ class Models:
         # Note that you cannot continue training after doing a replace. The model becomes effectively read-only = you can call most_similar, similarity etc., but not train.
         word2vec.init_sims(replace=True)
 
-        """Compute cosine similarity between two sets of words."""
-        r = sorted([(d, word2vec.wv.n_similarity(query, d)) for d in corpus if len(d) != 0], key=lambda x: x[1], reverse=True)
-        return r[:10]
+        # Return first 10 most similar documents
+        return sorted([(doc_idx, word2vec.wv.n_similarity(query, doc_content)) for doc_idx, doc_content in enumerate(corpus) if len(doc_content) != 0], key=lambda x: x[1], reverse=True)[:10]
+
 
     @staticmethod
     def latent_semantic_indexing(query: List[str], corpus: List[List[str]]):
@@ -71,5 +77,5 @@ class Models:
         # perform a similarity query against the corpus
         sims = index[query_lsi]
 
-        r = [(corpus[doc_idx], doc_sim) for doc_idx, doc_sim in sorted(enumerate(sims), key=lambda x: x[1], reverse=True)]
+        r = [(doc_idx, doc_sim) for doc_idx, doc_sim in sorted(enumerate(sims), key=lambda x: x[1], reverse=True)]
         return r[:10]

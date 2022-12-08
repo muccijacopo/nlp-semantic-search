@@ -5,8 +5,23 @@ from preprocessing import Preprocessing
 
 
 class Query:
+
     @staticmethod
-    def make_query(query: str, topic: str = 'beer', model: str = 'word2vec'):
+    def format_query_result(df, res):
+        """
+        Format and print query result.
+        TODO: Use Rich lib to display data in table format
+        """
+        [(df['Title'].values[doc_idx], doc_sim) for doc_idx, doc_sim in res]
+        for index, (doc_idx, doc_sim) in enumerate(res):
+            print(f"{index+1}) {df['Title'].values[doc_idx][:100]} Similarity: {doc_sim}")
+
+    @staticmethod
+    def make_query(query: str, topic: str, model: str):
+
+        print(f"Query: {query}")
+        print(f"Topic: {topic }")
+
         # Read dataset
         try:
             df = pd.read_csv(f'./data/stackechange_csv/{topic}.stackexchange.com-posts.csv', sep=',')
@@ -18,14 +33,15 @@ class Query:
         # Dataset preprocessing
         # TODO: move all preprocessing steps in Preprocessing class (rename to CustomReprocessing)
         # TODO: try different type of Reprocessing (ex. simple_reprocess from Gensim)
-        df['Title'] = df['Title'].apply(Preprocessing.apply_lowercase)
-        df['Title'] = df['Title'].apply(Preprocessing.remove_special_characters)
-        df['Title'] = df['Title'].apply(Preprocessing.remove_html)
+        df['Title__Preprocessed'] = df['Title'].copy()
+        df['Title__Preprocessed'] = df['Title__Preprocessed'].apply(Preprocessing.apply_lowercase)
+        df['Title__Preprocessed'] = df['Title__Preprocessed'].apply(Preprocessing.remove_special_characters)
+        df['Title__Preprocessed'] = df['Title__Preprocessed'].apply(Preprocessing.remove_html)
         print("Dataset preprocessing finished")
 
         # Corpus creation
         # TODO: try to decrease tokenization step execution time
-        corpus = Preprocessing.tokenize_list_of_sentences(df['Title'].values)
+        corpus = Preprocessing.tokenize_list_of_sentences(df['Title__Preprocessed'].values)
         print("Dataset tokenization finished. Corpus initialized")
 
         # Query preprocessing
@@ -35,10 +51,13 @@ class Query:
         print("Query preprocessing finished")
 
         if model == 'word2vec':
-            return Models.word2vec(query, corpus)
+            res = Models.word2vec(query, corpus)
+            return Query.format_query_result(df, res)
         elif model == 'tfidf':
-            return Models.tfidf(query, corpus)
+            res = Models.tfidf(query, corpus)
+            return Query.format_query_result(df, res)
         elif model == 'lsi' or model == 'lsa':
-            return Models.latent_semantic_indexing(query, corpus)
+            res = Models.latent_semantic_indexing(query, corpus)
+            return Query.format_query_result(df, res)
         else:
             print(f"{model} not implemented")
