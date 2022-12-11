@@ -20,11 +20,6 @@ def query_command(query: str, topic: str = typer.Option(..., help="Topic search"
     print(f"Query execution time: {round(end_time - start_time, 2)}s")
 
 
-@app.command()
-def hello_command():
-    print("Hello")
-
-
 if __name__ == '__main__':
     app()
 
