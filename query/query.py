@@ -1,7 +1,7 @@
 import pandas as pd
 
 from models import Models
-from preprocessing import Preprocessing
+from preprocessing import CustomPreprocessing
 
 
 class Query:
@@ -31,23 +31,19 @@ class Query:
             return print("Unknown error during dataset read")
 
         # Dataset preprocessing
-        # TODO: move all preprocessing steps in Preprocessing class (rename to CustomReprocessing)
         # TODO: try different type of Reprocessing (ex. simple_reprocess from Gensim)
-        df['Title__Preprocessed'] = df['Title'].copy()
-        df['Title__Preprocessed'] = df['Title__Preprocessed'].apply(Preprocessing.apply_lowercase)
-        df['Title__Preprocessed'] = df['Title__Preprocessed'].apply(Preprocessing.remove_special_characters)
-        df['Title__Preprocessed'] = df['Title__Preprocessed'].apply(Preprocessing.remove_html)
+        df['Title'] = df['Title'].astype("string")
+        df['Title'] = df['Title'].fillna("")
+        df['Title__Preprocessed'] = CustomPreprocessing.reprocess_title(df['Title'].copy())
         print("Dataset preprocessing finished")
 
         # Corpus creation
         # TODO: try to decrease tokenization step execution time
-        corpus = Preprocessing.tokenize_list_of_sentences(df['Title__Preprocessed'].values)
+        corpus = CustomPreprocessing.tokenize_list_of_sentences(df['Title__Preprocessed'].values)
         print("Dataset tokenization finished. Corpus initialized")
 
         # Query preprocessing
-        query = Preprocessing.apply_lowercase(query)
-        query = Preprocessing.remove_special_characters(query)
-        query = Preprocessing.remove_stopwords(Preprocessing.tokenize_sentence(query))
+        query = CustomPreprocessing.preprocess_query(query)
         print("Query preprocessing finished")
 
         if model == 'word2vec':

@@ -1,7 +1,7 @@
 import re
-from typing import List
-
 import nltk
+from typing import List
+from pandas import Series
 from nltk.corpus import stopwords
 
 
@@ -9,7 +9,7 @@ from nltk.corpus import stopwords
 # nltk.download('punkt')
 
 
-class Preprocessing:
+class CustomPreprocessing:
     @staticmethod
     def remove_html(content):
         return str(content).replace('<.{1,6}>', '')
@@ -20,11 +20,11 @@ class Preprocessing:
 
     @staticmethod
     def remove_special_characters(content):
-        return re.sub(r'\W', ' ', content)
+        return re.sub(r'\W', ' ', str(content))
 
     @staticmethod
     def apply_decontractions(content: str):
-        return content \
+        return str(content) \
             .replace("won't", "will not") \
             .replace("can\'t", "can not") \
             .replace("n\'t", " not") \
@@ -48,7 +48,21 @@ class Preprocessing:
     def tokenize_list_of_sentences(sentences):
         r: List[List[str]] = []
         for s in sentences:
-            tokens = Preprocessing.tokenize_sentence(s)
-            tokens = Preprocessing.remove_stopwords(tokens)
+            tokens = CustomPreprocessing.tokenize_sentence(s)
+            tokens = CustomPreprocessing.remove_stopwords(tokens)
             r.append(tokens)
         return r
+
+    @staticmethod
+    def reprocess_title(series: Series):
+        series.apply(CustomPreprocessing.apply_lowercase)
+        series.apply(CustomPreprocessing.remove_special_characters)
+        series.apply(CustomPreprocessing.remove_html)
+        return series
+
+    @staticmethod
+    def preprocess_query(s: str):
+        s = CustomPreprocessing.apply_lowercase(s)
+        s = CustomPreprocessing.remove_special_characters(s)
+        s = CustomPreprocessing.remove_stopwords(CustomPreprocessing.tokenize_sentence(s))
+        return s
