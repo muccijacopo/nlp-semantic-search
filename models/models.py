@@ -1,7 +1,24 @@
+import os
 from typing import List
 from gensim import corpora, similarities
 from gensim.corpora import Dictionary
 from gensim.models import TfidfModel, Word2Vec, LsiModel
+
+from corpus import Corpus
+
+MODELS_PATH = 'models/stored_models'
+
+
+def get_model_path(topic: str, model: str):
+    return f'{MODELS_PATH}/{topic}_{model}_gensim.model'
+
+
+def get_dictionary_path(topic: str, model: str):
+    return f'{MODELS_PATH}/{topic}_{model}_gensim.dictionary'
+
+
+def get_index_path(topic: str, model: str):
+    return f'{MODELS_PATH}/{topic}_{model}_gensim.index'
 
 
 class Models:
@@ -24,26 +41,39 @@ class Models:
         return model.wv.n_similarity(ws1, ws2)
 
     @staticmethod
-    def tfidf(query: List[str], corpus: List[List[str]]):
+    def train_gensim_tfidf(topic: str):
+        corpus = Corpus.get_corpus(topic)
         dictionary = Models.create_dictionary(corpus)
         # convert corpus to BoW format
         bow_corpus = Models.corpus_to_bow(corpus, dictionary)
 
         # fit model
         tfidf = TfidfModel(bow_corpus)
-
-        # transform the whole corpus via TfIdf and store in index matrix
         nf = len(dictionary.dfs)
         index = similarities.SparseMatrixSimilarity(tfidf[bow_corpus], num_features=nf)
 
-        query_bow = dictionary.doc2bow(query)
+        tfidf.save(f'{MODELS_PATH}/{topic}_tfidf_gensim.model')
+        index.save(f'{MODELS_PATH}/{topic}_tfidf_gensim.index')
+        dictionary.save(f'{MODELS_PATH}/{topic}_tfidf_gensim.dictionary')
+
+    @staticmethod
+    def predict_gensim_tfidf(query: str, topic: str):
+
+        # load model, index and dictionary
+        tfidf: TfidfModel = TfidfModel.load(f'{MODELS_PATH}/{topic}_tfidf_gensim.model')
+        index: similarities.SparseMatrixSimilarity = similarities.SparseMatrixSimilarity.load(f'{MODELS_PATH}/{topic}_tfidf_gensim.index')
+        dictionary: corpora.Dictionary = corpora.Dictionary.load(f'{MODELS_PATH}/{topic}_tfidf_gensim.dictionary')
+
+        # convert query to bow format
+        query_bow = Models.doc_to_bow(query, dictionary)
 
         # Compute similarity between query and this index
         sims = index[tfidf[query_bow]]
         # Similarity between query and each document sorted
 
         # Return first 10 most similar documents
-        return [(doc_idx, doc_sim) for doc_idx, doc_sim in sorted(enumerate(sims), key=lambda x: x[1], reverse=True)[:10]]
+        return [(doc_idx, doc_sim) for doc_idx, doc_sim in
+                sorted(enumerate(sims), key=lambda x: x[1], reverse=True)[:10]]
 
     @staticmethod
     def word2vec(query: List[str], corpus: List[List[str]]):
@@ -61,17 +91,25 @@ class Models:
 
 
     @staticmethod
-    def latent_semantic_indexing(query: List[str], corpus: List[List[str]]):
+    def train_gensim_lsi(topic: str):
+        corpus = Corpus.get_corpus(topic)
         dictionary = Models.create_dictionary(corpus)
-        query_bow = Models.doc_to_bow(query, dictionary)
         bow_corpus = Models.corpus_to_bow(corpus, dictionary)
-
-        # fit model
         lsi = LsiModel(bow_corpus, id2word=dictionary, num_topics=10)
-
         # transform corpus to LSI space and index it
         index = similarities.MatrixSimilarity(lsi[bow_corpus])
-        # convert the query to LSI space
+
+        lsi.save(get_model_path(topic, 'lsi'))
+        index.save(get_index_path(topic, 'lsi'))
+        dictionary.save(get_dictionary_path(topic, 'lsi'))
+
+    @staticmethod
+    def predict_gensim_lsi(query: List[str], topic: str):
+        lsi = LsiModel.load(get_model_path(topic, 'lsi'))
+        dictionary = corpora.Dictionary.load(get_dictionary_path(topic, 'lsi'))
+        index: similarities.SparseMatrixSimilarity = similarities.SparseMatrixSimilarity.load(get_index_path(topic, 'lsi'))
+
+        query_bow = Models.doc_to_bow(query, dictionary)
         query_lsi = lsi[query_bow]
 
         # perform a similarity query against the corpus
