@@ -1,5 +1,7 @@
 data
 venv
+models/stored_models/*
+!models/stored_models/.gitkeep
 
 .idea
 __pycache__
