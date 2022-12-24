@@ -32,8 +32,6 @@ class Query:
 
         # Dataset preprocessing
         # TODO: try different type of Reprocessing (ex. simple_reprocess from Gensim)
-        df['Title'] = df['Title'].astype("string")
-        df['Title'] = df['Title'].fillna("")
         df['Title__Preprocessed'] = CustomPreprocessing.reprocess_title(df['Title'].copy())
         print("Dataset preprocessing finished")
 
