@@ -12,7 +12,7 @@ from nltk.corpus import stopwords
 class CustomPreprocessing:
     @staticmethod
     def remove_html(content):
-        return str(content).replace('<.{1,6}>', '')
+        return re.sub(r'<.{1,6}>', '', str(content))
 
     @staticmethod
     def apply_lowercase(content):

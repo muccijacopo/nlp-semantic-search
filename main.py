@@ -15,12 +15,15 @@ def import_command():
 
 @app.command('train')
 def train(topic: str = typer.Option(..., help="Topic to train"), model=typer.Option(..., help="Model")):
+    start_time = time.time()
     if model == 'tfidf':
         Models.train_gensim_tfidf(topic)
     elif model == 'lsi' or model == 'lsa':
         Models.train_gensim_lsi(topic)
     else:
         print(f"{model} not implemented")
+    end_time = time.time()
+    print(f"Train execution time: {round(end_time - start_time, 2)}s")
 
 
 @app.command('query')

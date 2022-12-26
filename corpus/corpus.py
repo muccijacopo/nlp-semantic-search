@@ -10,7 +10,9 @@ class Corpus:
         df = Corpus.read_dataset(topic)
 
         df['Title__Preprocessed'] = CustomPreprocessing.reprocess_title(df['Title'].copy())
-        corpus = CustomPreprocessing.tokenize_list_of_sentences(df['Title__Preprocessed'].values)
+        df['Body__Reprocessed'] = CustomPreprocessing.reprocess_title(df['Body'].copy())
+        df['QuestionContent'] = df['Title__Preprocessed'] + ' ' + df['Body__Reprocessed']
+        corpus = CustomPreprocessing.tokenize_list_of_sentences(df['QuestionContent'].values)
         return corpus
 
     @staticmethod
