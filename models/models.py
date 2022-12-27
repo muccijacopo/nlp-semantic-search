@@ -105,6 +105,7 @@ class Models:
 
     @staticmethod
     def predict_gensim_lsi(query: List[str], topic: str):
+        print(topic)
         lsi = LsiModel.load(get_model_path(topic, 'lsi'))
         dictionary = corpora.Dictionary.load(get_dictionary_path(topic, 'lsi'))
         index: similarities.SparseMatrixSimilarity = similarities.SparseMatrixSimilarity.load(get_index_path(topic, 'lsi'))

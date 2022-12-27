@@ -55,8 +55,8 @@ class CustomPreprocessing:
 
     @staticmethod
     def reprocess_title(series: Series):
-        series.astype("string")
-        series = series.fillna("")
+        # series.astype("string")
+        # series = series.fillna("")
         series.apply(CustomPreprocessing.apply_lowercase)
         series.apply(CustomPreprocessing.remove_special_characters)
         series.apply(CustomPreprocessing.remove_html)

@@ -20,6 +20,9 @@ class Corpus:
         """Read dataset from csv file."""
         try:
             df = pd.read_csv(f'./data/stackechange_csv/{topic}.stackexchange.com-posts.csv', sep=',')
+            # remove answers posts from dataset
+            df['Title'] = df['Title'].astype("string")
+            df = df[df['Title'].notna()]
             return df
         except FileNotFoundError:
             raise Exception('Topic not found')

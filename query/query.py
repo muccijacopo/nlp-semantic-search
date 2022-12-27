@@ -11,15 +11,16 @@ class Query:
         Format and print query result.
         TODO: Use Rich lib to display data in table format
         """
-        [(df['Title'].values[doc_idx], doc_sim) for doc_idx, doc_sim in res]
+        print(res)
         for index, (doc_idx, doc_sim) in enumerate(res):
-            print(f"{index+1}) {df['Title'].values[doc_idx][:140]} Similarity: {doc_sim}")
+            print(f"{index+1}) {df.iloc[doc_idx]['Title']} | Similarity: {doc_sim}")
+
 
     @staticmethod
     def make_query(query: str, topic: str, model: str):
 
         print(f"Query: {query}")
-        print(f"Topic: {topic }")
+        print(f"Topic: {topic}")
 
         # Query preprocessing
         query = CustomPreprocessing.preprocess_query(query)
@@ -35,7 +36,7 @@ class Query:
             res = Models.predict_gensim_tfidf(query, topic)
             return Query.format_query_result(df, res)
         elif model == 'lsi' or model == 'lsa':
-            res = Models.predict_gensim_tfidf(query, topic)
+            res = Models.predict_gensim_lsi(query, topic)
             return Query.format_query_result(df, res)
         else:
             print(f"{model} not implemented")
