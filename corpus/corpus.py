@@ -11,7 +11,7 @@ class Corpus:
 
         df['Title__Preprocessed'] = CustomPreprocessing.reprocess_title(df['Title'].copy())
         df['Body__Reprocessed'] = CustomPreprocessing.reprocess_title(df['Body'].copy())
-        df['QuestionContent'] = df['Title__Preprocessed'] + ' ' + df['Body__Reprocessed']
+        df['QuestionContent'] = df['Body__Reprocessed']
         corpus = CustomPreprocessing.tokenize_list_of_sentences(df['QuestionContent'].values)
         return corpus
 
@@ -20,8 +20,7 @@ class Corpus:
         """Read dataset from csv file."""
         try:
             df = pd.read_csv(f'./data/stackechange_csv/{topic}.stackexchange.com-posts.csv', sep=',')
-            # remove answers posts from dataset
-            df['Title'] = df['Title'].astype("string")
+            # remove answer posts from dataset
             df = df[df['Title'].notna()]
             return df
         except FileNotFoundError:

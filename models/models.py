@@ -1,5 +1,5 @@
-import os
 from typing import List
+
 from gensim import corpora, similarities
 from gensim.corpora import Dictionary
 from gensim.models import TfidfModel, Word2Vec, LsiModel
@@ -95,7 +95,7 @@ class Models:
         corpus = Corpus.get_corpus(topic)
         dictionary = Models.create_dictionary(corpus)
         bow_corpus = Models.corpus_to_bow(corpus, dictionary)
-        lsi = LsiModel(bow_corpus, id2word=dictionary, num_topics=10)
+        lsi = LsiModel(bow_corpus, id2word=dictionary, num_topics=20)
         # transform corpus to LSI space and index it
         index = similarities.MatrixSimilarity(lsi[bow_corpus])
 

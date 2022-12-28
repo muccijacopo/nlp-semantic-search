@@ -12,7 +12,7 @@ from nltk.corpus import stopwords
 class CustomPreprocessing:
     @staticmethod
     def remove_html(content):
-        return re.sub(r'<.{1,6}>', '', str(content))
+        return re.sub(r'<.{1,6}>', ' ', str(content))
 
     @staticmethod
     def apply_lowercase(content):
@@ -55,11 +55,9 @@ class CustomPreprocessing:
 
     @staticmethod
     def reprocess_title(series: Series):
-        # series.astype("string")
-        # series = series.fillna("")
-        series.apply(CustomPreprocessing.apply_lowercase)
-        series.apply(CustomPreprocessing.remove_special_characters)
-        series.apply(CustomPreprocessing.remove_html)
+        series = series.apply(CustomPreprocessing.apply_lowercase)
+        series = series.apply(CustomPreprocessing.remove_html)
+        series = series.apply(CustomPreprocessing.remove_special_characters)
         return series
 
     @staticmethod
