@@ -1,7 +1,7 @@
 import re
 from typing import Dict
 
-ATTRIBUTES = ['Id', 'PostTypeId', 'CreationDate', 'Score', 'ViewCount', 'FavoriteCount', 'Title', 'Body', 'Tags', 'Topic']
+ATTRIBUTES = ['Id', 'PostTypeId', 'ParentId', 'CreationDate', 'Score', 'ViewCount', 'FavoriteCount', 'Title', 'Body', 'Tags', 'Topic']
 
 
 def normalize_string_alt(s: str) -> str:
