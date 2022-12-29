@@ -46,10 +46,13 @@ class CustomPreprocessing:
 
     @staticmethod
     def tokenize_list_of_sentences(sentences):
+        c = 0
         r: List[List[str]] = []
         for s in sentences:
+            c += 1
+            print(f'Preprocessing doc {c}/{len(sentences)}')
             tokens = CustomPreprocessing.tokenize_sentence(s)
-            tokens = CustomPreprocessing.remove_stopwords(tokens)
+            # tokens = CustomPreprocessing.remove_stopwords(tokens)
             r.append(tokens)
         return r
 

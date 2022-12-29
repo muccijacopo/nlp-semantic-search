@@ -76,7 +76,8 @@ class Models:
                 sorted(enumerate(sims), key=lambda x: x[1], reverse=True)[:10]]
 
     @staticmethod
-    def word2vec(query: List[str], corpus: List[List[str]]):
+    def predict_word2vec(query: List[str], topic: str):
+        corpus = Corpus.get_corpus(topic)
 
         # Training algorithm: 1 for skip-gram; otherwise CBOW.
         word2vec = Word2Vec(corpus, min_count=10, sg=0, window=10)
@@ -95,7 +96,8 @@ class Models:
         corpus = Corpus.get_corpus(topic)
         dictionary = Models.create_dictionary(corpus)
         bow_corpus = Models.corpus_to_bow(corpus, dictionary)
-        lsi = LsiModel(bow_corpus, id2word=dictionary, num_topics=100)
+        # TODO: dynamically adjust hyperparameters (num_topics)
+        lsi = LsiModel(bow_corpus, id2word=dictionary, num_topics=250)
         # transform corpus to LSI space and index it
         index = similarities.MatrixSimilarity(lsi[bow_corpus])
 

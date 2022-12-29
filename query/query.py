@@ -16,15 +16,12 @@ class Query:
             responses = full_df[full_df['ParentId'] == q['Id']]
             # print(f"{index+1}) {questions_df.iloc[doc_idx]['Title']} | Similarity: {doc_sim}")
             if len(responses.index):
-                print('Origial question: ', q['Title'], '\n')
+                print(f'Original question: {q["Title"]} Similarity: {doc_sim} \n')
                 print(responses.iloc[0]['Body'])
                 print('\n\n\n')
 
     @staticmethod
     def make_query(query: str, topic: str, model: str):
-
-        print(f"Query: {query}")
-        print(f"Topic: {topic}")
 
         # Query preprocessing
         query = CustomPreprocessing.preprocess_query(query)
@@ -34,9 +31,8 @@ class Query:
         full_df = Corpus.read_dataset(topic, exclude_answers=False)
 
         if model == 'word2vec':
-            # res = Models.word2vec(query, corpus)
-            # return Query.format_query_result(df, res)
-            print(model)
+            res = Models.predict_word2vec(query, topic)
+            return Query.format_query_result(questions_df, full_df, res)
         elif model == 'tfidf':
             res = Models.predict_gensim_tfidf(query, topic)
             return Query.format_query_result(questions_df, full_df, res)
