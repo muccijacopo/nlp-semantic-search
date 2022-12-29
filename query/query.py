@@ -1,5 +1,5 @@
 from corpus import Corpus
-from models import Models
+from models import TfIdfModel, LsiModel, Word2VecModel, LdaModel
 from preprocessing import CustomPreprocessing
 
 
@@ -31,13 +31,16 @@ class Query:
         full_df = Corpus.read_dataset(topic, exclude_answers=False)
 
         if model == 'word2vec':
-            res = Models.predict_word2vec(query, topic)
+            res = Word2VecModel().predict(query, topic)
             return Query.format_query_result(questions_df, full_df, res)
         elif model == 'tfidf':
-            res = Models.predict_gensim_tfidf(query, topic)
+            res = TfIdfModel().predict(query, topic)
             return Query.format_query_result(questions_df, full_df, res)
         elif model == 'lsi' or model == 'lsa':
-            res = Models.predict_gensim_lsi(query, topic)
+            res = LsiModel().predict(query, topic)
+            return Query.format_query_result(questions_df, full_df, res)
+        elif model == 'lda':
+            res = LdaModel().predict(query, topic)
             return Query.format_query_result(questions_df, full_df, res)
         else:
             print(f"{model} not implemented")
