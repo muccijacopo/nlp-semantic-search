@@ -1,6 +1,6 @@
 import pandas as pd
 
-from preprocessing import CustomPreprocessing
+from preprocessing import CustomPreprocessing, GensimPreprocessing
 from utils import memory_manager
 
 
@@ -10,10 +10,9 @@ class Corpus:
     def get_corpus(topic: str):
         # Get corpus from dataset file
         df = Corpus.read_dataset(topic, exclude_answers=True)
-        df['Title__Preprocessed'] = CustomPreprocessing.preprocess_content(df['Title'].copy())
-        df['Body__Reprocessed'] = CustomPreprocessing.preprocess_content(df['Body'].copy())
-        df['QuestionContent'] = df['Title__Preprocessed'] + ' ' + df['Body__Reprocessed']
-        corpus = CustomPreprocessing.tokenize_list_of_sentences(df['QuestionContent'].values)
+        df['QuestionContent'] = df['Title'] + ' ' + df['Body']
+        corpus = [CustomPreprocessing.simple_preprocess(d) for d in df['QuestionContent'].values]
+        # corpus = [GensimPreprocessing.simple_preprocess(d) for d in df['QuestionContent'].values]
         return corpus
 
     @staticmethod

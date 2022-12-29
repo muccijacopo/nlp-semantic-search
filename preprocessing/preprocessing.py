@@ -1,4 +1,6 @@
 import re
+
+import gensim.utils
 import nltk
 from typing import List
 from pandas import Series
@@ -45,23 +47,12 @@ class CustomPreprocessing:
         return nltk.word_tokenize(sentence)
 
     @staticmethod
-    def tokenize_list_of_sentences(sentences):
-        c = 0
-        r: List[List[str]] = []
-        for s in sentences:
-            c += 1
-            print(f'Preprocessing doc {c}/{len(sentences)}')
-            tokens = CustomPreprocessing.tokenize_sentence(s)
-            # tokens = CustomPreprocessing.remove_stopwords(tokens)
-            r.append(tokens)
-        return r
-
-    @staticmethod
-    def preprocess_content(series: Series):
-        series = series.apply(CustomPreprocessing.apply_lowercase)
-        series = series.apply(CustomPreprocessing.remove_html)
-        series = series.apply(CustomPreprocessing.remove_special_characters)
-        return series
+    def simple_preprocess(doc: str):
+        doc = CustomPreprocessing.apply_lowercase(doc)
+        doc = CustomPreprocessing.remove_html(doc)
+        doc = CustomPreprocessing.remove_special_characters(doc)
+        tokens = CustomPreprocessing.tokenize_sentence(doc)
+        return tokens
 
     @staticmethod
     def preprocess_query(s: str):
@@ -69,3 +60,9 @@ class CustomPreprocessing:
         s = CustomPreprocessing.remove_special_characters(s)
         s = CustomPreprocessing.remove_stopwords(CustomPreprocessing.tokenize_sentence(s))
         return s
+
+
+class GensimPreprocessing:
+    @staticmethod
+    def simple_preprocess(doc):
+        return gensim.utils.simple_preprocess(doc, min_len=3)

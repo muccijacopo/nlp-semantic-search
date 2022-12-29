@@ -1,1 +1,1 @@
-from .preprocessing import CustomPreprocessing
+from .preprocessing import CustomPreprocessing, GensimPreprocessing
