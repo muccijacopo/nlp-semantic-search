@@ -54,7 +54,7 @@ class CustomPreprocessing:
         return r
 
     @staticmethod
-    def reprocess_title(series: Series):
+    def preprocess_content(series: Series):
         series = series.apply(CustomPreprocessing.apply_lowercase)
         series = series.apply(CustomPreprocessing.remove_html)
         series = series.apply(CustomPreprocessing.remove_special_characters)

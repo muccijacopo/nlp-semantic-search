@@ -52,9 +52,9 @@ class Models:
         nf = len(dictionary.dfs)
         index = similarities.SparseMatrixSimilarity(tfidf[bow_corpus], num_features=nf)
 
-        tfidf.save(f'{MODELS_PATH}/{topic}_tfidf_gensim.model')
-        index.save(f'{MODELS_PATH}/{topic}_tfidf_gensim.index')
-        dictionary.save(f'{MODELS_PATH}/{topic}_tfidf_gensim.dictionary')
+        tfidf.save(get_model_path(topic, 'tfidf'))
+        index.save(get_index_path(topic, 'tfidf'))
+        dictionary.save(get_dictionary_path(topic, 'tfidf'))
 
     @staticmethod
     def predict_gensim_tfidf(query: str, topic: str):
@@ -95,7 +95,7 @@ class Models:
         corpus = Corpus.get_corpus(topic)
         dictionary = Models.create_dictionary(corpus)
         bow_corpus = Models.corpus_to_bow(corpus, dictionary)
-        lsi = LsiModel(bow_corpus, id2word=dictionary, num_topics=20)
+        lsi = LsiModel(bow_corpus, id2word=dictionary, num_topics=100)
         # transform corpus to LSI space and index it
         index = similarities.MatrixSimilarity(lsi[bow_corpus])
 
@@ -105,7 +105,6 @@ class Models:
 
     @staticmethod
     def predict_gensim_lsi(query: List[str], topic: str):
-        print(topic)
         lsi = LsiModel.load(get_model_path(topic, 'lsi'))
         dictionary = corpora.Dictionary.load(get_dictionary_path(topic, 'lsi'))
         index: similarities.SparseMatrixSimilarity = similarities.SparseMatrixSimilarity.load(get_index_path(topic, 'lsi'))
