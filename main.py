@@ -2,7 +2,7 @@ import time
 import typer
 
 from importing import import_xml_to_csv
-from models import TfIdfModel, LsiModel, LdaModel
+from models import TfIdfModel, LsiModel, LdaModel, LsiTfidfModel
 from query import Query
 
 app = typer.Typer()
@@ -18,8 +18,10 @@ def train(topic: str = typer.Option(..., help="Topic to train"), model=typer.Opt
     start_time = time.time()
     if model == 'tfidf':
         TfIdfModel().train(topic)
-    elif model == 'lsi' or model == 'lsa':
+    elif model == 'lsi':
         LsiModel().train(topic)
+    elif model == 'lsi-tfidf':
+        LsiTfidfModel().train(topic)
     elif model == 'lda':
         LdaModel().train(topic)
     else:

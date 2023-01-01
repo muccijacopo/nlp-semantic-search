@@ -1,5 +1,5 @@
 from corpus import Corpus
-from models import TfIdfModel, LsiModel, Word2VecModel, LdaModel
+from models import TfIdfModel, LsiModel, Word2VecModel, LdaModel, LsiTfidfModel
 from preprocessing import CustomPreprocessing
 
 
@@ -36,8 +36,11 @@ class Query:
         elif model == 'tfidf':
             res = TfIdfModel().predict(query, topic)
             return Query.format_query_result(questions_df, full_df, res)
-        elif model == 'lsi' or model == 'lsa':
+        elif model == 'lsi':
             res = LsiModel().predict(query, topic)
+            return Query.format_query_result(questions_df, full_df, res)
+        elif model == 'lsi-tfidf':
+            res = LsiTfidfModel().predict(query, topic)
             return Query.format_query_result(questions_df, full_df, res)
         elif model == 'lda':
             res = LdaModel().predict(query, topic)

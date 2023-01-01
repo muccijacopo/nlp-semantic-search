@@ -5,8 +5,10 @@ from gensim.corpora import Dictionary
 
 from corpus import Corpus
 
+
 class Model:
     MODELS_PATH = 'models/stored_models'
+
     @abstractmethod
     def train(self, topic: str):
         pass
@@ -44,16 +46,20 @@ class TfIdfModel(Model):
         # fit model
         tfidf = models.TfidfModel(bow_corpus)
         nf = len(dictionary.dfs)
-        index = similarities.SparseMatrixSimilarity(tfidf[bow_corpus], num_features=nf)
+        tfidf_corpus = tfidf[bow_corpus]
+        index = similarities.SparseMatrixSimilarity(tfidf_corpus, num_features=nf)
 
         tfidf.save(super().get_model_path(topic, 'tfidf'))
         index.save(super().get_index_path(topic, 'tfidf'))
         dictionary.save(super().get_dictionary_path(topic, 'tfidf'))
 
+        return corpus, bow_corpus, tfidf_corpus, dictionary
+
     def predict(self, query: str, topic: str):
         # load model, index and dictionary
         tfidf: models.TfidfModel = models.TfidfModel.load(self.get_model_path(topic, 'tfidf'))
-        index: similarities.SparseMatrixSimilarity = similarities.SparseMatrixSimilarity.load(self.get_index_path(topic, 'tfidf'))
+        index: similarities.SparseMatrixSimilarity = similarities.SparseMatrixSimilarity.load(
+            self.get_index_path(topic, 'tfidf'))
         dictionary: corpora.Dictionary = corpora.Dictionary.load(self.get_dictionary_path(topic, 'tfidf'))
 
         # convert query to bow format
@@ -148,6 +154,35 @@ class LdaModel(Model):
 
         # perform a similarity query against the corpus
         sims = index[query_lda]
+
+        r = [(doc_idx, doc_sim) for doc_idx, doc_sim in sorted(enumerate(sims), key=lambda x: x[1], reverse=True)]
+        return r[:10]
+
+
+class LsiTfidfModel(Model):
+    def train(self, topic: str):
+        corpus, bow_corpus, tfidf_corpus, dictionary = TfIdfModel().train(topic)
+
+        lsi = models.LsiModel(tfidf_corpus, id2word=dictionary, num_topics=300)
+
+        # transform corpus to LSI space and index it
+        index = similarities.MatrixSimilarity(lsi[tfidf_corpus])
+
+        lsi.save(super().get_model_path(topic, 'lsi-tfidf'))
+        index.save(super().get_index_path(topic, 'lsi-tfidf'))
+        dictionary.save(super().get_dictionary_path(topic, 'lsi-tfidf'))
+
+    def predict(self, query: str, topic: str):
+        lsi = models.LsiModel.load(super().get_model_path(topic, 'lsi-tfidf'))
+        dictionary = corpora.Dictionary.load(super().get_dictionary_path(topic, 'lsi-tfidf'))
+        index: similarities.SparseMatrixSimilarity = similarities.SparseMatrixSimilarity.load(
+            super().get_index_path(topic, 'lsi-tfidf'))
+
+        query_bow = super().doc_to_bow(query, dictionary)
+        query_lsi = lsi[query_bow]
+
+        # perform a similarity query against the corpus
+        sims = index[query_lsi]
 
         r = [(doc_idx, doc_sim) for doc_idx, doc_sim in sorted(enumerate(sims), key=lambda x: x[1], reverse=True)]
         return r[:10]
