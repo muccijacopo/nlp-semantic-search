@@ -4,6 +4,7 @@ from gensim import corpora, similarities, models
 from gensim.corpora import Dictionary
 
 from corpus import Corpus
+from preprocessing import GensimPreprocessing
 
 
 class Model:
@@ -186,3 +187,35 @@ class LsiTfidfModel(Model):
 
         r = [(doc_idx, doc_sim) for doc_idx, doc_sim in sorted(enumerate(sims), key=lambda x: x[1], reverse=True)]
         return r[:10]
+
+
+class Doc2Vec(Model):
+    def train(self, topic: str):
+        # transform corpus to iterable of tagged documents
+        train_corpus = [models.doc2vec.TaggedDocument(document, [i]) for (i, document) in enumerate(Corpus.get_corpus(topic))]
+        model = models.doc2vec.Doc2Vec(documents=train_corpus, vector_size=50, min_count=2, epochs=40)
+
+        # ranks = []
+        # second_ranks = []
+        # for doc_id in range(len(train_corpus)):
+        #     inferred_vector = model.infer_vector(train_corpus[doc_id].words)
+        #     sims = model.dv.most_similar([inferred_vector], topn=len(model.dv))
+        #     rank = [docid for docid, sim in sims].index(doc_id)
+        #     ranks.append(rank)
+        #
+        #     second_ranks.append(sims[1])
+
+        model.save(super().get_model_path(topic, 'doc2vec'))
+
+    def predict(self, query: str, topic: str):
+        model = models.Doc2Vec.load(super().get_model_path(topic, 'doc2vec'))
+
+        # Return first 10 most similar documents
+        # return sorted(
+        #     [(doc_idx, model.wv.n_similarity(query, doc_content)) for doc_idx, doc_content in enumerate(corpus) if
+        #      len(doc_content) != 0], key=lambda x: x[1], reverse=True)[:10]
+        # print(GensimPreprocessing.simple_preprocess(query))
+
+        inferred_vector = model.infer_vector(query)
+        sims = model.dv.most_similar([inferred_vector], topn=len(model.dv))
+        return sims[:10]

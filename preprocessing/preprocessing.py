@@ -58,8 +58,8 @@ class CustomPreprocessing:
     def preprocess_query(s: str):
         s = CustomPreprocessing.apply_lowercase(s)
         s = CustomPreprocessing.remove_special_characters(s)
-        s = CustomPreprocessing.remove_stopwords(CustomPreprocessing.tokenize_sentence(s))
-        return s
+        doc = CustomPreprocessing.remove_stopwords(CustomPreprocessing.tokenize_sentence(s))
+        return doc
 
 
 class GensimPreprocessing:

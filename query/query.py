@@ -1,5 +1,5 @@
 from corpus import Corpus
-from models import TfIdfModel, LsiModel, Word2VecModel, LdaModel, LsiTfidfModel
+from models import TfIdfModel, LsiModel, Word2VecModel, LdaModel, LsiTfidfModel, Doc2Vec
 from preprocessing import CustomPreprocessing
 
 
@@ -11,7 +11,7 @@ class Query:
         Format and print query result.
         TODO: Use Rich lib to display data in table format
         """
-        for index, (doc_idx, doc_sim) in enumerate(res):
+        for _, (doc_idx, doc_sim) in enumerate(res):
             q = questions_df.iloc[doc_idx]
             responses = full_df[full_df['ParentId'] == q['Id']]
             # print(f"{index+1}) {questions_df.iloc[doc_idx]['Title']} | Similarity: {doc_sim}")
@@ -44,6 +44,9 @@ class Query:
             return Query.format_query_result(questions_df, full_df, res)
         elif model == 'lda':
             res = LdaModel().predict(query, topic)
+            return Query.format_query_result(questions_df, full_df, res)
+        elif model == 'doc2vec':
+            res = Doc2Vec().predict(query, topic)
             return Query.format_query_result(questions_df, full_df, res)
         else:
             print(f"{model} not implemented")
