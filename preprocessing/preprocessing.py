@@ -65,4 +65,4 @@ class CustomPreprocessing:
 class GensimPreprocessing:
     @staticmethod
     def simple_preprocess(doc):
-        return gensim.utils.simple_preprocess(doc, min_len=3)
+        return gensim.utils.simple_preprocess(doc)

@@ -7,12 +7,15 @@ from utils import memory_manager
 class Corpus:
 
     @staticmethod
-    def get_corpus(topic: str):
+    def get_corpus(topic: str, title_only=False):
         # Get corpus from dataset file
         df = Corpus.read_dataset(topic, exclude_answers=True)
-        df['QuestionContent'] = df['Title'] + ' ' + df['Body']
-        # corpus = [CustomPreprocessing.simple_preprocess(d) for d in df['QuestionContent'].values]
-        corpus = [GensimPreprocessing.simple_preprocess(d) for d in df['QuestionContent'].values]
+        if title_only:
+            df['QuestionContent'] = df['Title']
+        else:
+            df['QuestionContent'] = df['Title'] + ' ' + df['Body']
+        corpus = [CustomPreprocessing.simple_preprocess(d) for d in df['QuestionContent'].values]
+        # corpus = [GensimPreprocessing.simple_preprocess(d) for d in df['QuestionContent'].values]
         return corpus
 
     @staticmethod

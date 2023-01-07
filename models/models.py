@@ -1,10 +1,10 @@
+import collections
 from typing import List
 from abc import abstractmethod
 from gensim import corpora, similarities, models
 from gensim.corpora import Dictionary
 
 from corpus import Corpus
-from preprocessing import GensimPreprocessing
 
 
 class Model:
@@ -57,6 +57,7 @@ class TfIdfModel(Model):
         return corpus, bow_corpus, tfidf_corpus, dictionary
 
     def predict(self, query: str, topic: str):
+        print(topic)
         # load model, index and dictionary
         tfidf: models.TfidfModel = models.TfidfModel.load(self.get_model_path(topic, 'tfidf'))
         index: similarities.SparseMatrixSimilarity = similarities.SparseMatrixSimilarity.load(
@@ -82,23 +83,20 @@ class Word2VecModel(Model):
         return model.wv.n_similarity(ws1, ws2)
 
     def train(self, topic: str):
-        pass
-
-    def predict(self, query: str, topic: str):
         corpus = Corpus.get_corpus(topic)
 
         # Training algorithm: 1 for skip-gram; otherwise CBOW.
-        word2vec = models.Word2Vec(corpus, min_count=10, sg=0, window=10)
+        model = models.Word2Vec(corpus, min_count=10, sg=0, window=10)
 
-        # Precompute L2-normalized vectors.
-        # If replace is set, forget the original vectors and only keep the normalized ones = saves lots of memory!
-        # Note that you cannot continue training after doing a replace. The model becomes effectively read-only = you can call most_similar, similarity etc., but not train.
-        word2vec.init_sims(replace=True)
+        model.save(super().get_model_path(topic, 'word2vec'))
+        return model
 
-        # Return first 10 most similar documents
-        return sorted(
-            [(doc_idx, word2vec.wv.n_similarity(query, doc_content)) for doc_idx, doc_content in enumerate(corpus) if
-             len(doc_content) != 0], key=lambda x: x[1], reverse=True)[:10]
+    def predict(self, query: str, topic: str):
+        model = models.Word2Vec.load(super().get_model_path(topic, 'word2vec'))
+
+
+        sims = model.dv.most_similar([inferred_vector], topn=len(model.dv))
+        return sims[:10]
 
 
 class LsiModel(Model):
@@ -193,7 +191,7 @@ class Doc2Vec(Model):
     def train(self, topic: str):
         # transform corpus to iterable of tagged documents
         train_corpus = [models.doc2vec.TaggedDocument(document, [i]) for (i, document) in enumerate(Corpus.get_corpus(topic))]
-        model = models.doc2vec.Doc2Vec(documents=train_corpus, vector_size=50, min_count=2, epochs=40)
+        model = models.doc2vec.Doc2Vec(documents=train_corpus, vector_size=50, min_count=5, epochs=40)
 
         # ranks = []
         # second_ranks = []
@@ -204,6 +202,9 @@ class Doc2Vec(Model):
         #     ranks.append(rank)
         #
         #     second_ranks.append(sims[1])
+        #
+        # counter = collections.Counter(ranks)
+        # print(counter)
 
         model.save(super().get_model_path(topic, 'doc2vec'))
 
