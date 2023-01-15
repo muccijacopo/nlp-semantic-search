@@ -1,1 +1,1 @@
-from models.models import TfIdfModel, Word2VecModel, LsiModel, LdaModel, LsiTfidfModel, Doc2Vec
+from models.models import Model, Word2VecModel, TfIdfModel, Word2VecModel, LsiModel, LdaModel, LsiTfidfModel, Doc2Vec

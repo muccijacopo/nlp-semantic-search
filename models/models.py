@@ -57,7 +57,6 @@ class TfIdfModel(Model):
         return corpus, bow_corpus, tfidf_corpus, dictionary
 
     def predict(self, query: str, topic: str):
-        print(topic)
         # load model, index and dictionary
         tfidf: models.TfidfModel = models.TfidfModel.load(self.get_model_path(topic, 'tfidf'))
         index: similarities.SparseMatrixSimilarity = similarities.SparseMatrixSimilarity.load(
@@ -78,7 +77,7 @@ class TfIdfModel(Model):
 
 class Word2VecModel(Model):
     @staticmethod
-    def compute_word2vec_similarity(self, model: models.Word2Vec, ws1: List[str], ws2: List[str]):
+    def compute_word2vec_similarity(model: models.Word2Vec, ws1: List[str], ws2: List[str]):
         """Compute cosine similarity between two sets of words."""
         return model.wv.n_similarity(ws1, ws2)
 
@@ -87,15 +86,18 @@ class Word2VecModel(Model):
 
         # Training algorithm: 1 for skip-gram; otherwise CBOW.
         model = models.Word2Vec(corpus, min_count=10, sg=0, window=10)
+        dictionary = super().create_dictionary(corpus)
 
         model.save(super().get_model_path(topic, 'word2vec'))
+        dictionary.save(super().get_dictionary_path(topic, 'word2vec'))
         return model
 
     def predict(self, query: str, topic: str):
         model = models.Word2Vec.load(super().get_model_path(topic, 'word2vec'))
-
-
-        sims = model.dv.most_similar([inferred_vector], topn=len(model.dv))
+        corpus = Corpus.get_corpus(topic)
+        sims = sorted(
+            [(doc_idx, self.compute_word2vec_similarity(model, doc_content, query)) for doc_idx, doc_content in
+             enumerate(corpus)], key=lambda x: x[1], reverse=True)
         return sims[:10]
 
 
@@ -191,7 +193,11 @@ class Doc2Vec(Model):
     def train(self, topic: str):
         # transform corpus to iterable of tagged documents
         train_corpus = [models.doc2vec.TaggedDocument(document, [i]) for (i, document) in enumerate(Corpus.get_corpus(topic))]
-        model = models.doc2vec.Doc2Vec(documents=train_corpus, vector_size=50, min_count=5, epochs=40)
+        model = models.doc2vec.Doc2Vec(vector_size=50, min_count=2, epochs=40)
+        # build vocabulary
+        model.build_vocab(train_corpus)
+        # train model
+        model.train(train_corpus, total_examples=model.corpus_count, epochs=model.epochs)
 
         # ranks = []
         # second_ranks = []

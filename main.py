@@ -2,7 +2,7 @@ import time
 import typer
 
 from importing import import_xml_to_csv
-from models import TfIdfModel, LsiModel, LdaModel, LsiTfidfModel, Doc2Vec
+from models import TfIdfModel, LsiModel, LdaModel, LsiTfidfModel, Doc2Vec, Word2VecModel
 from query import Query
 
 app = typer.Typer()
@@ -16,7 +16,9 @@ def import_command():
 @app.command('train')
 def train(topic: str = typer.Option(..., help="Topic to train"), model=typer.Option(..., help="Model")):
     start_time = time.time()
-    if model == 'tfidf':
+    if model == 'word2vec':
+        Word2VecModel().train(topic)
+    elif model == 'tfidf':
         TfIdfModel().train(topic)
     elif model == 'lsi':
         LsiModel().train(topic)
