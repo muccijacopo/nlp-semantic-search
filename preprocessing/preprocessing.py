@@ -47,19 +47,23 @@ class CustomPreprocessing:
         return nltk.word_tokenize(sentence)
 
     @staticmethod
-    def simple_preprocess(doc: str):
+    def simple_preprocess(doc: str, tokenize=True):
         doc = CustomPreprocessing.apply_lowercase(doc)
         doc = CustomPreprocessing.remove_html(doc)
         doc = CustomPreprocessing.remove_special_characters(doc)
-        tokens = CustomPreprocessing.tokenize_sentence(doc)
-        return tokens
+        if tokenize:
+            return CustomPreprocessing.tokenize_sentence(doc)
+        else:
+            return doc
 
     @staticmethod
-    def preprocess_query(s: str):
+    def preprocess_query(s: str, tokenize=True):
         s = CustomPreprocessing.apply_lowercase(s)
         s = CustomPreprocessing.remove_special_characters(s)
-        doc = CustomPreprocessing.remove_stopwords(CustomPreprocessing.tokenize_sentence(s))
-        return doc
+        if tokenize:
+            return CustomPreprocessing.remove_stopwords(CustomPreprocessing.tokenize_sentence(s))
+        else:
+            return s
 
 
 class GensimPreprocessing:

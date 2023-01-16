@@ -1,5 +1,5 @@
 from corpus import Corpus
-from models import TfIdfModel, LsiModel, Word2VecModel, LdaModel, LsiTfidfModel, Doc2Vec
+from models import TfIdfModel, LsiModel, Word2VecModel, LdaModel, LsiTfidfModel, Doc2Vec, BERTModel
 from preprocessing import CustomPreprocessing
 
 
@@ -24,7 +24,7 @@ class Query:
     def make_query(query: str, topic: str, model: str):
 
         # Query preprocessing
-        query = CustomPreprocessing.preprocess_query(query)
+        query = CustomPreprocessing.preprocess_query(query, tokenize=False)
         print("Query preprocessing finished")
 
         questions_df = Corpus.read_dataset(topic, exclude_answers=True)
@@ -47,6 +47,9 @@ class Query:
             return Query.format_query_result(questions_df, full_df, res)
         elif model == 'doc2vec':
             res = Doc2Vec().predict(query, topic)
+            return Query.format_query_result(questions_df, full_df, res)
+        elif model == 'bert':
+            res = BERTModel().predict(query, topic)
             return Query.format_query_result(questions_df, full_df, res)
         else:
             print(f"{model} not implemented")
