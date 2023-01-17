@@ -1,5 +1,6 @@
 from corpus import Corpus
-from models import TfIdfModel, LsiModel, Word2VecModel, LdaModel, LsiTfidfModel, Doc2Vec, BERTModel
+from models import TfIdfModel, LsiModel, Word2VecModel, LdaModel, LsiTfidfModel, Doc2Vec, MiniLMModel, \
+    FineTunedBertModel
 from preprocessing import CustomPreprocessing
 
 
@@ -48,8 +49,11 @@ class Query:
         elif model == 'doc2vec':
             res = Doc2Vec().predict(query, topic)
             return Query.format_query_result(questions_df, full_df, res)
-        elif model == 'bert':
-            res = BERTModel().predict(query, topic)
+        elif model == 'mini-lm':
+            res = MiniLMModel().predict(query, topic)
             return Query.format_query_result(questions_df, full_df, res)
+        elif model == 'bert':
+            res = FineTunedBertModel().predict(query, topic)
+            # return Query.format_query_result(questions_df, full_df, res)
         else:
             print(f"{model} not implemented")
