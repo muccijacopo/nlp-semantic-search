@@ -1,6 +1,7 @@
 from sentence_transformers import SentenceTransformer, util, models, InputExample, losses
 import torch
 from torch.utils.data import DataLoader
+from transformers import AutoTokenizer, AutoModel
 
 from models import Model
 from corpus import Corpus
@@ -8,7 +9,7 @@ from corpus import Corpus
 
 class MiniLMModel(Model):
     def train(self, topic: str):
-        corpus = Corpus.get_corpus('beer', tokenize=False)
+        corpus = Corpus.get_corpus(topic, tokenize=False)
 
         # model = SentenceTransformer('all-MiniLM-L6-v2')
         # corpus_embeddings = model.encode(corpus, convert_to_tensor=True)
@@ -32,6 +33,60 @@ class MiniLMModel(Model):
         return [(idx.item(), score.item()) for score, idx in zip(top_results[0], top_results[1])]
 
 
+class MultiQAMiniLMWithTorch(Model):
+
+    def __init__(self, topic):
+        self.corpus = Corpus.get_corpus(topic, tokenize=False)
+        self.tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/multi-qa-MiniLM-L6-cos-v1")
+        self.model = AutoModel.from_pretrained("sentence-transformers/multi-qa-MiniLM-L6-cos-v1")
+
+    @classmethod
+    def mean_pooling(cls, model_output, attention_mask):
+        """Mean Pooling - Take attention mask into account for correct averaging."""
+        token_embeddings = model_output[0]  # First element of model_output contains all token embeddings
+        input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+        sum_embeddings = torch.sum(token_embeddings * input_mask_expanded, 1)
+        sum_mask = torch.clamp(input_mask_expanded.sum(1), min=1e-9)
+        return sum_embeddings / sum_mask
+
+    # Encode text
+    def encode(self, docs):
+        # Tokenize sentences
+        encoded_input = self.tokenizer(docs, padding=True, truncation=True, return_tensors='pt')
+
+        # Compute token embeddings
+        with torch.no_grad():
+            model_output = self.model(**encoded_input, return_dict=True)
+
+        # Perform pooling
+        embeddings = self.mean_pooling(model_output, encoded_input['attention_mask'])
+
+        # Normalize embeddings
+        embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
+
+        return embeddings
+
+    def train(self, topic: str):
+        pass
+
+    def predict(self, query: str, topic: str):
+
+        corpus_embeddings = self.encode(self.corpus)
+        query_embeddings = self.encode(query)
+
+        # Compute dot score between query and all document embeddings
+        # TODO: try cosine similarity
+        scores = torch.mm(query_embeddings, corpus_embeddings.transpose(0, 1))[0].cpu().tolist()
+        # Combine docs & scores
+        # TODO: construct matrix similarity
+        docs_similarity = list(zip(self.corpus, scores))
+        # Sort docs by similarity score
+        docs_similarity_sorted = sorted(docs_similarity, key=lambda x: x[1], reverse=True)
+
+        return [(doc_idx, docs_similarity) for (doc_idx, (_, doc_similarity)) in enumerate(docs_similarity_sorted[:10])]
+
+
+# TODO: try to reduce memory allocation
 class FineTunedBertModel(Model):
     def train(self, topic: str):
         # TODO: move model training here and implement saving

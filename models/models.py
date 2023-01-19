@@ -106,7 +106,7 @@ class LsiModel(Model):
         corpus = Corpus.get_corpus(topic)
         dictionary = super().create_dictionary(corpus)
         bow_corpus = super().corpus_to_bow(corpus, dictionary)
-        # TODO: dynamically adjust hyperparameters (num_topics)
+        # TODO: adjust params (num_topics)
         lsi = models.LsiModel(bow_corpus, id2word=dictionary, num_topics=250)
         # transform corpus to LSI space and index it
         index = similarities.MatrixSimilarity(lsi[bow_corpus])
