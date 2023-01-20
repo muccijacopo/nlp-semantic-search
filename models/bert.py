@@ -36,7 +36,7 @@ class MiniLMModel(Model):
 class MultiQAMiniLMWithTorch(Model):
 
     def __init__(self, topic):
-        self.corpus = Corpus.get_corpus(topic, tokenize=False)
+        self.corpus = Corpus.get_corpus(topic, tokenize=False)[:100]
         self.tokenizer = AutoTokenizer.from_pretrained("sentence-transformers/multi-qa-MiniLM-L6-cos-v1")
         self.model = AutoModel.from_pretrained("sentence-transformers/multi-qa-MiniLM-L6-cos-v1")
 
@@ -55,6 +55,7 @@ class MultiQAMiniLMWithTorch(Model):
         encoded_input = self.tokenizer(docs, padding=True, truncation=True, return_tensors='pt')
 
         # Compute token embeddings
+        # TODO: use Dataloader for batching
         with torch.no_grad():
             model_output = self.model(**encoded_input, return_dict=True)
 
@@ -70,7 +71,6 @@ class MultiQAMiniLMWithTorch(Model):
         pass
 
     def predict(self, query: str, topic: str):
-
         corpus_embeddings = self.encode(self.corpus)
         query_embeddings = self.encode(query)
 
@@ -79,14 +79,15 @@ class MultiQAMiniLMWithTorch(Model):
         scores = torch.mm(query_embeddings, corpus_embeddings.transpose(0, 1))[0].cpu().tolist()
         # Combine docs & scores
         # TODO: construct matrix similarity
-        docs_similarity = list(zip(self.corpus, scores))
+        # docs_similarity = list(zip(self.corpus, scores))
+        # docs_similarity = enumerate(scores)
+
         # Sort docs by similarity score
-        docs_similarity_sorted = sorted(docs_similarity, key=lambda x: x[1], reverse=True)
+        docs_similarity_sorted = sorted(enumerate(scores), key=lambda x: x[1], reverse=True)
 
-        return [(doc_idx, docs_similarity) for (doc_idx, (_, doc_similarity)) in enumerate(docs_similarity_sorted[:10])]
+        return docs_similarity_sorted[:10]
 
 
-# TODO: try to reduce memory allocation
 class FineTunedBertModel(Model):
     def train(self, topic: str):
         # TODO: move model training here and implement saving

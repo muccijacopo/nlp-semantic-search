@@ -15,11 +15,9 @@ class Query:
         for _, (doc_idx, doc_sim) in enumerate(res):
             q = questions_df.iloc[doc_idx]
             responses = full_df[full_df['ParentId'] == q['Id']]
-            # print(f"{index+1}) {questions_df.iloc[doc_idx]['Title']} | Similarity: {doc_sim}")
             if len(responses.index):
-                print(f'Original question: {q["Title"]} Similarity: {doc_sim} \n')
-                print(responses.iloc[0]['Body'])
-                print('\n\n\n')
+                print(f'Original question: {q["Title"]} Similarity: {doc_sim}')
+                print(f'Answer: {responses.iloc[0]["Body"]}\n')
 
     @staticmethod
     def make_query(query: str, topic: str, model: str):
@@ -57,6 +55,6 @@ class Query:
             # return Query.format_query_result(questions_df, full_df, res)
         elif model == 'multi-qa-minilm-torch':
             res = MultiQAMiniLMWithTorch(topic).predict(query, topic)
-            # return Query.format_query_result(questions_df, full_df, res)
+            return Query.format_query_result(questions_df, full_df, res)
         else:
             print(f"{model} not implemented")
