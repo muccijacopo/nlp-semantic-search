@@ -164,7 +164,7 @@ class LsiTfidfModel(Model):
     def train(self, topic: str):
         corpus, bow_corpus, tfidf_corpus, dictionary = TfIdfModel().train(topic)
 
-        lsi = models.LsiModel(tfidf_corpus, id2word=dictionary, num_topics=300)
+        lsi = models.LsiModel(tfidf_corpus, id2word=dictionary, num_topics=300, chunksize=20000)
 
         # transform corpus to LSI space and index it
         index = similarities.MatrixSimilarity(lsi[tfidf_corpus])

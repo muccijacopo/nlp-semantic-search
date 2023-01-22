@@ -1,6 +1,6 @@
 from corpus import Corpus
 from models import TfIdfModel, LsiModel, Word2VecModel, LdaModel, LsiTfidfModel, Doc2Vec, MiniLMModel, \
-    FineTunedBertModel, MultiQAMiniLMWithTorch
+    FineTunedBertModel, MultiQAMiniLMWithTorch, DistilBertModel
 from preprocessing import CustomPreprocessing
 
 
@@ -55,6 +55,9 @@ class Query:
             # return Query.format_query_result(questions_df, full_df, res)
         elif model == 'multi-qa-minilm-torch':
             res = MultiQAMiniLMWithTorch(topic).predict(query, topic)
+            return Query.format_query_result(questions_df, full_df, res)
+        elif model == 'distilbert':
+            res = DistilBertModel(topic).predict(query, topic)
             return Query.format_query_result(questions_df, full_df, res)
         else:
             print(f"{model} not implemented")
