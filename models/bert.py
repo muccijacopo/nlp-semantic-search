@@ -93,7 +93,7 @@ class DistilBertModel(Model):
     MODEL_NAME = "sentence-transformers/multi-qa-distilbert-cos-v1"
 
     def __init__(self, topic):
-        self.corpus = Corpus.get_corpus(topic, tokenize=False)[:10]
+        self.corpus = Corpus.get_corpus(topic, tokenize=False)[:100]
         self.tokenizer = AutoTokenizer.from_pretrained(self.MODEL_NAME)
         self.model = AutoModel.from_pretrained(self.MODEL_NAME)
 
@@ -113,7 +113,7 @@ class DistilBertModel(Model):
 
         embeddings = self.mean_pooling(model_output, encoded_input['attention_mask'])
         embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
-
+        print(embeddings.size())
         return embeddings
 
     def train(self, topic: str):

@@ -39,7 +39,7 @@ class Model:
 
 class TfIdfModel(Model):
     def train(self, topic: str):
-        corpus = Corpus.get_corpus(topic)
+        corpus = Corpus.get_corpus(topic, title_only=False)
         dictionary = super().create_dictionary(corpus)
         # convert corpus to BoW format
         bow_corpus = super().corpus_to_bow(corpus, dictionary)
@@ -82,10 +82,10 @@ class Word2VecModel(Model):
         return model.wv.n_similarity(ws1, ws2)
 
     def train(self, topic: str):
-        corpus = Corpus.get_corpus(topic)
+        corpus = Corpus.get_corpus(topic, title_only=False)
 
         # Training algorithm: 1 for skip-gram; otherwise CBOW.
-        model = models.Word2Vec(corpus, min_count=10, sg=0, window=10)
+        model = models.Word2Vec(corpus, min_count=10, sg=0, window=10, epochs=5)
         dictionary = super().create_dictionary(corpus)
 
         model.save(super().get_model_path(topic, 'word2vec'))
@@ -94,7 +94,7 @@ class Word2VecModel(Model):
 
     def predict(self, query: str, topic: str):
         model = models.Word2Vec.load(super().get_model_path(topic, 'word2vec'))
-        corpus = Corpus.get_corpus(topic)
+        corpus = Corpus.get_corpus(topic, title_only=False)
         sims = sorted(
             [(doc_idx, self.compute_word2vec_similarity(model, doc_content, query)) for doc_idx, doc_content in
              enumerate(corpus)], key=lambda x: x[1], reverse=True)
@@ -103,7 +103,7 @@ class Word2VecModel(Model):
 
 class LsiModel(Model):
     def train(self, topic: str):
-        corpus = Corpus.get_corpus(topic)
+        corpus = Corpus.get_corpus(topic, title_only=True)
         dictionary = super().create_dictionary(corpus)
         bow_corpus = super().corpus_to_bow(corpus, dictionary)
         # TODO: adjust params (num_topics)
@@ -192,8 +192,8 @@ class LsiTfidfModel(Model):
 class Doc2Vec(Model):
     def train(self, topic: str):
         # transform corpus to iterable of tagged documents
-        train_corpus = [models.doc2vec.TaggedDocument(document, [i]) for (i, document) in enumerate(Corpus.get_corpus(topic))]
-        model = models.doc2vec.Doc2Vec(vector_size=50, min_count=2, epochs=40)
+        train_corpus = [models.doc2vec.TaggedDocument(document, [i]) for (i, document) in enumerate(Corpus.get_corpus(topic, title_only=False))]
+        model = models.doc2vec.Doc2Vec(vector_size=50, epochs=100)
         # build vocabulary
         model.build_vocab(train_corpus)
         # train model

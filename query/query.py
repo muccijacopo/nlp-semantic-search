@@ -5,25 +5,28 @@ from preprocessing import CustomPreprocessing
 
 
 class Query:
-
     @staticmethod
     def format_query_result(questions_df, full_df, res):
         """
         Format and print query result.
         TODO: Use Rich lib to display data in table format
+        TODO: Add support for HTML
         """
-        for _, (doc_idx, doc_sim) in enumerate(res):
+        s = ""
+        for sort_idx, (doc_idx, doc_sim) in enumerate(res):
             q = questions_df.iloc[doc_idx]
             responses = full_df[full_df['ParentId'] == q['Id']]
             if len(responses.index):
-                print(f'Original question: {q["Title"]} Similarity: {doc_sim}')
-                print(f'Answer: {responses.iloc[0]["Body"]}\n')
+                s += f'{sort_idx+1}) Original question: {q["Title"]} Similarity: {doc_sim} \n'
+                s += f'Answer: {responses.iloc[0]["Body"]}\n\n'
+
+        return s
 
     @staticmethod
     def make_query(query: str, topic: str, model: str):
 
         # Query preprocessing
-        query = CustomPreprocessing.preprocess_query(query, tokenize=False)
+        query = CustomPreprocessing.preprocess_query(query, tokenize=True)
         print("Query preprocessing finished")
 
         questions_df = Corpus.read_dataset(topic, exclude_answers=True)
