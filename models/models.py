@@ -1,4 +1,3 @@
-import collections
 from typing import List
 from abc import abstractmethod
 from gensim import corpora, similarities, models
