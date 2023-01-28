@@ -92,10 +92,13 @@ class DistilBertModel(Model):
 
     MODEL_NAME = "sentence-transformers/multi-qa-distilbert-cos-v1"
 
-    def __init__(self, topic):
-        self.corpus = Corpus.get_corpus(topic, tokenize=False)[:100]
-        self.tokenizer = AutoTokenizer.from_pretrained(self.MODEL_NAME)
+    def __init__(self):
         self.model = AutoModel.from_pretrained(self.MODEL_NAME)
+        self.tokenizer = AutoTokenizer.from_pretrained(self.MODEL_NAME)
+
+    @classmethod
+    def get_tensor_file_name(cls, topic: str):
+        return f'models/stored_models/{topic}_distilbert.pt'
 
     @classmethod
     def mean_pooling(cls, model_output, attention_mask):
@@ -106,22 +109,25 @@ class DistilBertModel(Model):
         return sum_embeddings / sum_mask
 
     def encode(self, docs):
-        encoded_input = self.tokenizer(docs, padding=True, truncation=True, return_tensors='pt')
-
+        tokenizer = AutoTokenizer.from_pretrained(self.MODEL_NAME)
+        encoded_input = tokenizer(docs, padding=True, truncation=True, return_tensors='pt')
         with torch.no_grad():
             model_output = self.model(**encoded_input, return_dict=True)
 
         embeddings = self.mean_pooling(model_output, encoded_input['attention_mask'])
         embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
-        print(embeddings.size())
         return embeddings
 
     def train(self, topic: str):
-        pass
+        corpus = Corpus.get_corpus(topic, tokenize=False)[:10]
+        corpus_embeddings = self.encode(corpus)
+        torch.save(corpus_embeddings, self.get_tensor_file_name(topic))
 
     def predict(self, query: str, topic: str):
-        corpus_embeddings = self.encode(self.corpus)
+        # corpus_embeddings = self.encode(self.corpus)
         query_embeddings = self.encode(query)
+
+        corpus_embeddings = torch.load(self.get_tensor_file_name(topic))
 
         # Compute dot score between query and all document embeddings
         scores = torch.mm(query_embeddings, corpus_embeddings.transpose(0, 1))[0].cpu().tolist()

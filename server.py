@@ -1,8 +1,7 @@
-from typing import Union
-
 from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
 import uvicorn
+from main import train_model
 
 from query import Query
 
@@ -16,8 +15,8 @@ def read_root(q: str, topic: str, model: str):
 
 
 @app.get("/train")
-def read_root():
-    return "Not yet"
+def read_root(model: str, topic: str):
+    train_model(model, topic)
 
 
 if __name__ == "__main__":

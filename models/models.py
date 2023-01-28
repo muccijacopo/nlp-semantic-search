@@ -2,7 +2,6 @@ from typing import List
 from abc import abstractmethod
 from gensim import corpora, similarities, models
 from gensim.corpora import Dictionary
-
 from corpus import Corpus
 
 
@@ -84,7 +83,7 @@ class Word2VecModel(Model):
         corpus = Corpus.get_corpus(topic, title_only=False)
 
         # Training algorithm: 1 for skip-gram; otherwise CBOW.
-        model = models.Word2Vec(corpus, min_count=10, sg=0, window=10, epochs=5)
+        model = models.Word2Vec(corpus, min_count=10, sg=0, window=10, epochs=100)
         dictionary = super().create_dictionary(corpus)
 
         model.save(super().get_model_path(topic, 'word2vec'))
@@ -192,7 +191,7 @@ class Doc2Vec(Model):
     def train(self, topic: str):
         # transform corpus to iterable of tagged documents
         train_corpus = [models.doc2vec.TaggedDocument(document, [i]) for (i, document) in enumerate(Corpus.get_corpus(topic, title_only=False))]
-        model = models.doc2vec.Doc2Vec(vector_size=50, epochs=100)
+        model = models.doc2vec.Doc2Vec(vector_size=100, epochs=80)
         # build vocabulary
         model.build_vocab(train_corpus)
         # train model
@@ -222,6 +221,6 @@ class Doc2Vec(Model):
         #      len(doc_content) != 0], key=lambda x: x[1], reverse=True)[:10]
         # print(GensimPreprocessing.simple_preprocess(query))
 
-        inferred_vector = model.infer_vector(query)
+        inferred_vector = model.infer_vector(query, epochs=80)
         sims = model.dv.most_similar([inferred_vector], topn=len(model.dv))
         return sims[:10]

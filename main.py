@@ -2,19 +2,11 @@ import time
 import typer
 
 from importing import import_xml_to_csv
-from models import TfIdfModel, LsiModel, LdaModel, LsiTfidfModel, Doc2Vec, Word2VecModel
+from models import TfIdfModel, LsiModel, LdaModel, LsiTfidfModel, Doc2Vec, Word2VecModel, DistilBertModel
 from query import Query
 
-app = typer.Typer()
 
-
-@app.command('import')
-def import_command():
-    import_xml_to_csv()
-
-
-@app.command('train')
-def train(topic: str = typer.Option(..., help="Topic to train"), model=typer.Option(..., help="Model")):
+def train_model(model: str, topic: str):
     start_time = time.time()
     if model == 'word2vec':
         Word2VecModel().train(topic)
@@ -28,10 +20,25 @@ def train(topic: str = typer.Option(..., help="Topic to train"), model=typer.Opt
         LdaModel().train(topic)
     elif model == 'doc2vec':
         Doc2Vec().train(topic)
+    elif model == 'distilbert':
+        DistilBertModel().train(topic)
     else:
         print(f"{model} not implemented")
     end_time = time.time()
     print(f"Train execution time: {round(end_time - start_time, 2)}s")
+
+
+app = typer.Typer()
+
+
+@app.command('import')
+def import_command():
+    import_xml_to_csv()
+
+
+@app.command('train')
+def train(topic: str = typer.Option(..., help="Topic to train"), model=typer.Option(..., help="Model")):
+    train_model(model, topic)
 
 
 @app.command('query')

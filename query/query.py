@@ -60,7 +60,7 @@ class Query:
             res = MultiQAMiniLMWithTorch(topic).predict(query, topic)
             return Query.format_query_result(questions_df, full_df, res)
         elif model == 'distilbert':
-            res = DistilBertModel(topic).predict(query, topic)
+            res = DistilBertModel().predict(query, topic)
             return Query.format_query_result(questions_df, full_df, res)
         else:
             print(f"{model} not implemented")
