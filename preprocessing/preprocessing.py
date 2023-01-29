@@ -47,10 +47,12 @@ class CustomPreprocessing:
         return nltk.word_tokenize(sentence)
 
     @staticmethod
-    def simple_preprocess(doc: str, tokenize=True):
-        doc = CustomPreprocessing.apply_lowercase(doc)
-        doc = CustomPreprocessing.remove_html(doc)
-        doc = CustomPreprocessing.remove_special_characters(doc)
+    def simple_preprocess(doc: str, tokenize=True, lowercase=True, special_characters=True):
+        if lowercase:
+            doc = CustomPreprocessing.apply_lowercase(doc)
+        if special_characters:
+            doc = CustomPreprocessing.remove_html(doc)
+            doc = CustomPreprocessing.remove_special_characters(doc)
         if tokenize:
             return CustomPreprocessing.tokenize_sentence(doc)
         else:

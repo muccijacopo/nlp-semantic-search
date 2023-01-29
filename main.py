@@ -44,7 +44,7 @@ def train(topic: str = typer.Option(..., help="Topic to train"), model=typer.Opt
 @app.command('query')
 def query_command(query: str, topic: str = typer.Option(..., help="Topic search"), model: str = typer.Option(..., help="Model (es. word2vec, tfidf, ...")):
     start_time = time.time()
-    Query.make_query(query, topic=topic, model=model)
+    Query.make_query(query, topic=topic, model=model, generate_text=True)
     end_time = time.time()
     print(f"Query execution time: {round(end_time - start_time, 2)}s")
 

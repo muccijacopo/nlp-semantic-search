@@ -1,7 +1,11 @@
+from abc import abstractmethod
+from typing import List
+
 from sentence_transformers import SentenceTransformer, util, models, InputExample, losses
 import torch
 from torch.utils.data import DataLoader
-from transformers import AutoTokenizer, AutoModel
+from transformers import AutoTokenizer, AutoModel, GPT2Tokenizer, GPT2Model, pipeline, set_seed, \
+    QuestionAnsweringPipeline
 
 from models import Model
 from corpus import Corpus
@@ -169,4 +173,32 @@ class FineTunedBertModel(Model):
 
         return [(idx.item(), score.item()) for score, idx in zip(top_results[0], top_results[1])]
 
+
+class GenerativeModel:
+    @abstractmethod
+    def generate(self, question: str, context: str):
+        pass
+
+
+class QuestionAnsweringGPT2Model(GenerativeModel):
+    def generate(self, question: str, context: str):
+        # tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+        # model = GPT2Model.from_pretrained('gpt2')
+        # text = "Replace me by any text you'd like."
+        # encoded_input = tokenizer(text, return_tensors='pt')
+        # output = model(**encoded_input)
+        # print(output)
+        print(question)
+        text_generation_pipeline = pipeline('text-generation', model='distilgpt2')
+        outputs = text_generation_pipeline(question, num_return_sequences=10)
+        return outputs
+
+
+class QuestionAnsweringDistilbertModel(GenerativeModel):
+    def generate(self, question: str, context: List[str]):
+        question_answerer_pipeline = pipeline("question-answering", model='distilbert-base-cased-distilled-squad')
+        # print(question, context)
+        res = question_answerer_pipeline(question=question, context=context, top_k=10)
+        res = QuestionAnsweringGPT2Model().generate(res[9]['answer'], '')
+        return res
 
