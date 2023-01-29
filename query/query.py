@@ -1,3 +1,5 @@
+import json
+
 from corpus import Corpus
 from models import TfIdfModel, LsiModel, Word2VecModel, LdaModel, LsiTfidfModel, Doc2Vec, MiniLMModel, \
     FineTunedBertModel, MultiQAMiniLMWithTorch, DistilBertModel, QuestionAnsweringDistilbertModel
@@ -68,6 +70,7 @@ class Query:
                     context += f"{CustomPreprocessing.simple_preprocess(answer_row['Body'], lowercase=False, tokenize=False, special_characters=True)} \n"
                 res = QuestionAnsweringDistilbertModel().generate(query, context)
                 print(res)
+                return json.dumps(res)
             else:
                 return Query.format_query_result(questions_df, full_df, res)
         elif model == 'lda':

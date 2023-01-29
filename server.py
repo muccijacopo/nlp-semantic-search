@@ -9,8 +9,8 @@ app = FastAPI(title="Semantic Search App")
 
 
 @app.get("/query")
-def read_root(q: str, topic: str, model: str):
-    r = Query.make_query(q, topic=topic, model=model)
+def read_root(q: str, topic: str, model: str, format: str):
+    r = Query.make_query(q, topic=topic, model=model, generate_text=format == 'answer')
     return PlainTextResponse(r)
 
 
