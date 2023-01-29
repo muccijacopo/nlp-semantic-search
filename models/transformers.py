@@ -181,24 +181,36 @@ class GenerativeModel:
 
 
 class QuestionAnsweringGPT2Model(GenerativeModel):
+    model_name = "distilgpt2"
+
     def generate(self, question: str, context: str):
+        print(question)
         # tokenizer = GPT2Tokenizer.from_pretrained('gpt2')
+        text_generation_pipeline = pipeline('text-generation', model=self.model_name)
         # model = GPT2Model.from_pretrained('gpt2')
-        # text = "Replace me by any text you'd like."
+
         # encoded_input = tokenizer(text, return_tensors='pt')
         # output = model(**encoded_input)
+        outputs = text_generation_pipeline(question, num_return_sequences=10, max_length=100)
         # print(output)
-        print(question)
-        text_generation_pipeline = pipeline('text-generation', model='distilgpt2')
-        outputs = text_generation_pipeline(question, num_return_sequences=10)
+
         return outputs
 
 
 class QuestionAnsweringDistilbertModel(GenerativeModel):
     def generate(self, question: str, context: List[str]):
+        # tokenizer = DistilBertTokenizer.from_pretrained('distilbert-base-cased-distilled-squad')
+        # model = DistilBertModel.from_pretrained('distilbert-base-cased-distilled-squad')
         question_answerer_pipeline = pipeline("question-answering", model='distilbert-base-cased-distilled-squad')
         # print(question, context)
+        # inputs = tokenizer(question, text, return_tensors="pt")
+        # with torch.no_grad():
+        #     outputs = model(**inputs)
+        #
+        # print(outputs)
+        # print(res)
+        # res = QuestionAnsweringGPT2Model().generate(res[0]['answer'], '')\
+
         res = question_answerer_pipeline(question=question, context=context, top_k=10)
-        res = QuestionAnsweringGPT2Model().generate(res[9]['answer'], '')
-        return res
+        return sorted(res, key=lambda x: x['score'], reverse=True)
 

@@ -14,9 +14,9 @@ def find_answers(full_df, question_id):
     return responses
 
 
-def find_first_better_answer(questions_df, full_df, question_idx):
-    q = find_question(questions_df, question_idx)
-    return find_answers(full_df, q['Id'])[0]
+def find_first_better_answer(full_df, question_id):
+    answers = find_answers(full_df, question_id)
+    return answers.iloc[0]
 
 
 class Query:
@@ -29,11 +29,10 @@ class Query:
         """
         s = ""
         for sort_idx, (doc_idx, doc_sim) in enumerate(res):
-            q = questions_df.iloc[doc_idx]
-            answer = find_first_better_answer(questions_df, full_df, doc_idx)
-            if answer:
-                s += f'{sort_idx+1}) Original question: {q["Title"]} Similarity: {doc_sim} \n'
-                s += f'Answer: {answer}\n\n'
+            question = find_question(questions_df, doc_idx)
+            answer = find_first_better_answer(full_df, question['Id'])
+            s += f'{sort_idx+1}) Original question: {question["Title"]} Similarity: {doc_sim} \n'
+            s += f'Answer: {answer["Body"]}\n\n'
 
         if stdout:
             print(s)
