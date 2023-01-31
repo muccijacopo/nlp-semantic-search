@@ -1,11 +1,13 @@
 from fastapi import FastAPI
 from fastapi.responses import PlainTextResponse
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from main import train_model
 
 from query import Query
 
 app = FastAPI(title="Semantic Search App")
+app.add_middleware(CORSMiddleware, allow_origins=["*"])
 
 
 @app.get("/query")
