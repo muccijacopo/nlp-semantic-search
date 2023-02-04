@@ -92,6 +92,9 @@
 {/if}
 
 <style>
+  h1 {
+    font-size: 60px;
+  }
   .search-wrapper {
     display: flex;
     flex-direction: column;
@@ -117,13 +120,18 @@
     display: flex;
     flex-direction: column;
     gap: 10px;
-    height: 500px;
+    height: 600px;
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
     padding-right: 10px;
     overflow-y: auto;
   }
   .card {
-    background-color: #373737;
+    background-color: var(--content-bg);
+    border-radius: var(--border-radius);
     padding: 10px 20px;
     text-align: left;
+    overflow-wrap: normal;
   }
 </style>
