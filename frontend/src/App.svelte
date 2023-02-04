@@ -1,8 +1,10 @@
 <script lang="ts">
+  import type { Results } from "./interfaces/results";
+
   let searchText = "Find missing values in dataframe";
   let topic: string;
   let model: string;
-  let result = "";
+  let results: Results = [];
   let isLoading = false;
   let showError = false;
 
@@ -30,6 +32,7 @@
 
   function query() {
     isLoading = true;
+    showError = false;
     const params = {
       q: searchText,
       topic: "datascience",
@@ -38,14 +41,16 @@
     };
     const qs = "?" + new URLSearchParams(params).toString();
     fetch(`http://localhost:8000/query${qs}`)
-      .then((e) => e.text())
-      .then((res) => {
-        result = res;
-        isLoading = false;
+      .then((e) => e.json())
+      .then((res: Results) => {
+        results = res;
+        showError = false;
       })
       .catch((e) => {
         console.log(e);
         showError = true;
+      })
+      .finally(() => {
         isLoading = false;
       });
   }
@@ -71,9 +76,20 @@
   </div>
 </div>
 
-{#if isLoading}Loading...{/if}
-{#if result && !showError} {result} {/if}
-{#if showError}An error has occured. Please try later.{/if}
+{#if isLoading}
+  Loading...
+{:else if showError}
+  An error has occured. Please try later.
+{:else}
+  <div class="results">
+    {#each results as res}
+      <div class="card">
+        <h3>{res.question}</h3>
+        <p>{@html res.best_answer}</p>
+      </div>
+    {/each}
+  </div>
+{/if}
 
 <style>
   .search-wrapper {
@@ -95,5 +111,19 @@
   select {
     padding: 1rem;
     font-size: 1rem;
+  }
+
+  .results {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    height: 500px;
+    padding-right: 10px;
+    overflow-y: auto;
+  }
+  .card {
+    background-color: #373737;
+    padding: 10px 20px;
+    text-align: left;
   }
 </style>

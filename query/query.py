@@ -29,23 +29,29 @@ class Query:
         TODO: Use Rich lib to display data in table format
         TODO: Add support for HTML
         """
-        s = ""
+        result = []
         for sort_idx, (doc_idx, doc_sim) in enumerate(res):
             question = find_question(questions_df, doc_idx)
+
             answer = find_first_better_answer(full_df, question['Id'])
-            s += f'{sort_idx+1}) Original question: {question["Title"]} Similarity: {doc_sim} \n'
-            s += f'Answer: {answer["Body"]}\n\n'
+            result.append({
+                'idx': sort_idx + 1,
+                'question': question["Title"],
+                'best_answer': answer["Body"]
+            })
 
         if stdout:
-            print(s)
-        return s
+            print(result)
+
+        return result
 
     @staticmethod
     def make_query(query: str, topic: str, model: str, generate_text=False):
 
+        print(query, topic, model, generate_text)
+
         # Query preprocessing
         query_tokens = CustomPreprocessing.preprocess_query(query, tokenize=True)
-        print("Query preprocessing finished")
 
         questions_df = Corpus.read_dataset(topic, exclude_answers=True)
         full_df = Corpus.read_dataset(topic, exclude_answers=False)
@@ -62,6 +68,7 @@ class Query:
         elif model == 'lsi-tfidf':
             res = LsiTfidfModel().predict(query_tokens, topic)
             if generate_text:
+                # TODO: create generalized function for text generation
                 first_doc_idx, _ = res[0]
                 question = find_question(questions_df, first_doc_idx)
                 answers = find_answers(full_df, question['Id'])

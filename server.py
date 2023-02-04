@@ -1,5 +1,7 @@
+import json
+
 from fastapi import FastAPI
-from fastapi.responses import PlainTextResponse
+from fastapi.responses import PlainTextResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from main import train_model
@@ -13,7 +15,7 @@ app.add_middleware(CORSMiddleware, allow_origins=["*"])
 @app.get("/query")
 def read_root(q: str, topic: str, model: str, format: str):
     r = Query.make_query(q, topic=topic, model=model, generate_text=format == 'answer')
-    return PlainTextResponse(r)
+    return JSONResponse(r)
 
 
 @app.get("/train")
