@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { TOPICS, MODELS } from "./costants";
   import type { Results } from "./interfaces/results";
 
   let searchText = "Find missing values in dataframe";
@@ -8,34 +9,15 @@
   let isLoading = false;
   let showError = false;
 
-  let models = [
-    {
-      name: "Doc2Vec",
-      key: "doc2vec",
-    },
-    {
-      name: "LSI",
-      key: "lsi",
-    },
-    {
-      name: "LSI+TFIDF",
-      key: "lsi-tfidf",
-    },
-  ];
-
-  let topics = [
-    {
-      name: "Datascience",
-      key: "datascience",
-    },
-  ];
+  const models = MODELS;
+  const topics = TOPICS;
 
   function query() {
     isLoading = true;
     showError = false;
     const params = {
       q: searchText,
-      topic: "datascience",
+      topic: topic,
       model: model,
       format: "documents",
     };
@@ -60,9 +42,9 @@
 <div class="search-wrapper">
   <div class="search-input">
     <input type="text" bind:value={searchText} />
-    <button on:click={query} disabled={!searchText.length}>Search</button>
+    <button on:click={query} disabled={!searchText.length}>SEARCH</button>
   </div>
-  <div>
+  <div style="display: flex; justify-content: center; gap: 10px">
     <select bind:value={model}>
       {#each models as model}
         <option value={model.key}>{model.name}</option>

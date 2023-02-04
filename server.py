@@ -8,7 +8,7 @@ from main import train_model
 
 from query import Query
 
-app = FastAPI(title="Semantic Search App")
+app = FastAPI(title="Semantic Search API")
 app.add_middleware(CORSMiddleware, allow_origins=["*"])
 
 
