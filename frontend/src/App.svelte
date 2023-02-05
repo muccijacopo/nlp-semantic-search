@@ -3,8 +3,8 @@
   import type { Results } from "./interfaces/results";
 
   let searchText = "Find missing values in dataframe";
-  let topic: string;
-  let model: string;
+  let topic = "datascience";
+  let model = "doc2vec";
   let results: Results = [];
   let isLoading = false;
   let showError = false;
@@ -38,7 +38,7 @@
   }
 </script>
 
-<h1>Semantic Search</h1>
+<h1>NLP Semantic Search</h1>
 <div class="search-wrapper">
   <div class="search-input">
     <input type="text" bind:value={searchText} />
