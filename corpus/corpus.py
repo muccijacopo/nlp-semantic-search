@@ -23,6 +23,7 @@ class Corpus:
         """Read dataset from csv file."""
         try:
             df = pd.read_csv(f'./data/stackechange_csv/{topic}.stackexchange.com-posts.csv', sep=',')
+            print(f"Reading {topic} dataset. Number of records: {len(df.index)}")
             if exclude_answers:
                 df = df[df['Title'].notna()]
             return df

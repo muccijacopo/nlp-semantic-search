@@ -3,7 +3,8 @@ from typing import List
 
 from sentence_transformers import SentenceTransformer, util, models, InputExample, losses
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, Dataset
+from torch.utils.data.dataset import T_co
 from transformers import AutoTokenizer, AutoModel, GPT2Tokenizer, GPT2Model, pipeline, set_seed, \
     QuestionAnsweringPipeline
 
@@ -123,8 +124,17 @@ class DistilBertModel(Model):
         return embeddings
 
     def train(self, topic: str):
-        corpus = Corpus.get_corpus(topic, tokenize=False)[:10]
-        corpus_embeddings = self.encode(corpus)
+        corpus = Corpus.get_corpus(topic, tokenize=False)[:1000]
+        corpus_dataset = TorchDataset(corpus)
+        corpus_dataloader = DataLoader(corpus_dataset, batch_size=100)
+        corpus_embeddings = None
+        for corpus_batch in corpus_dataloader:
+            if corpus_embeddings is None:
+                corpus_embeddings = self.encode(corpus_batch)
+            else:
+                corpus_embeddings = torch.cat((corpus_embeddings, self.encode(corpus_batch)), 0)
+
+        print(corpus_embeddings)
         torch.save(corpus_embeddings, self.get_tensor_file_name(topic))
 
     def predict(self, query: str, topic: str):
@@ -214,3 +224,13 @@ class QuestionAnsweringDistilbertModel(GenerativeModel):
         res = question_answerer_pipeline(question=question, context=context, top_k=10)
         return sorted(res, key=lambda x: x['score'], reverse=True)
 
+
+class TorchDataset(Dataset):
+    def __init__(self, corpus):
+        self.corpus = corpus
+
+    def __len__(self):
+        return len(self.corpus)
+
+    def __getitem__(self, index):
+        return self.corpus[index]
