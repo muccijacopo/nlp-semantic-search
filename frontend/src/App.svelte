@@ -1,9 +1,10 @@
 <script lang="ts">
   import { TOPICS, MODELS } from "./costants";
   import type { Results } from "./interfaces/results";
+  import Loader from "./lib/Loader.svelte";
 
-  let searchText = "Find missing values in dataframe";
-  let topic = "datascience";
+  let searchText = "What is the difference between IPA and Double IPA?";
+  let topic = "beer";
   let model = "doc2vec";
   let results: Results = [];
   let isLoading = false;
@@ -45,11 +46,13 @@
     <button on:click={query} disabled={!searchText.length}>SEARCH</button>
   </div>
   <div style="display: flex; justify-content: center; gap: 10px">
+    <h3>Model</h3>
     <select bind:value={model}>
       {#each models as model}
         <option value={model.key}>{model.name}</option>
       {/each}
     </select>
+    <h3>Dataset</h3>
     <select bind:value={topic}>
       {#each topics as topic}
         <option value={topic.key}>{topic.name}</option>
@@ -59,7 +62,11 @@
 </div>
 
 {#if isLoading}
-  Loading...
+  <div
+    style="display: flex; justify-content: center; align-items: center; height: 100px"
+  >
+    <Loader />
+  </div>
 {:else if showError}
   An error has occured. Please try later.
 {:else}
