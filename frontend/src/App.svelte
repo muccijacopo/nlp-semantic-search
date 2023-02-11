@@ -58,6 +58,11 @@
         <option value={topic.key}>{topic.name}</option>
       {/each}
     </select>
+    <h3>Format</h3>
+    <select>
+      <option>Documents</option>
+      <option disabled>Answer</option>
+    </select>
   </div>
 </div>
 
