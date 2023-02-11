@@ -31,4 +31,8 @@ export const MODELS = [
     name: "DistilBert",
     key: "distilbert",
   },
+  {
+    name: "MiniLM",
+    key: "minilm",
+  },
 ];

@@ -4,7 +4,6 @@ from typing import List
 from sentence_transformers import SentenceTransformer, util, models, InputExample, losses
 import torch
 from torch.utils.data import DataLoader, Dataset
-from torch.utils.data.dataset import T_co
 from transformers import AutoTokenizer, AutoModel, GPT2Tokenizer, GPT2Model, pipeline, set_seed, \
     QuestionAnsweringPipeline
 
@@ -29,10 +28,14 @@ class MiniLMModel(Model):
         corpus = Corpus.get_corpus(topic, tokenize=False)
 
         model = SentenceTransformer('all-MiniLM-L6-v2')
-        corpus_embeddings = model.encode(corpus, convert_to_tensor=True)
+
+        # token emebedding
+        corpus_embeddings = model.encode(corpus, convert_to_tensor=True, batch_size=100)
         query_embedding = model.encode(query, convert_to_tensor=True)
 
+        # compute cosine similarity
         cos_scores = util.cos_sim(query_embedding, corpus_embeddings)[0]
+        # sort top 10 docs
         top_results = torch.topk(cos_scores, k=10)
 
         return [(idx.item(), score.item()) for score, idx in zip(top_results[0], top_results[1])]
@@ -107,7 +110,7 @@ class DistilBertModel(Model):
 
     @classmethod
     def mean_pooling(cls, model_output, attention_mask):
-        token_embeddings = model_output[0]  # First element of model_output contains all token embeddings
+        token_embeddings = model_output[0]
         input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
         sum_embeddings = torch.sum(token_embeddings * input_mask_expanded, 1)
         sum_mask = torch.clamp(input_mask_expanded.sum(1), min=1e-9)
@@ -124,17 +127,23 @@ class DistilBertModel(Model):
         return embeddings
 
     def train(self, topic: str):
-        corpus = Corpus.get_corpus(topic, tokenize=False)[:1000]
-        corpus_dataset = TorchDataset(corpus)
-        corpus_dataloader = DataLoader(corpus_dataset, batch_size=100)
+        corpus = Corpus.get_corpus(topic, tokenize=False)
+        corpus_dataset = CorpusWithTorchDataset(corpus)
+        loader_params = {
+            'batch_size': 100,
+            'num_workers': 8
+        }
+        corpus_dataloader = DataLoader(corpus_dataset, **loader_params)
         corpus_embeddings = None
+        iteration = 0
         for corpus_batch in corpus_dataloader:
+            iteration += 1
+            print(f"Iteration {iteration}. Processed records {iteration * loader_params['batch_size']}")
             if corpus_embeddings is None:
                 corpus_embeddings = self.encode(corpus_batch)
             else:
                 corpus_embeddings = torch.cat((corpus_embeddings, self.encode(corpus_batch)), 0)
 
-        print(corpus_embeddings)
         torch.save(corpus_embeddings, self.get_tensor_file_name(topic))
 
     def predict(self, query: str, topic: str):
@@ -225,7 +234,7 @@ class QuestionAnsweringDistilbertModel(GenerativeModel):
         return sorted(res, key=lambda x: x['score'], reverse=True)
 
 
-class TorchDataset(Dataset):
+class CorpusWithTorchDataset(Dataset):
     def __init__(self, corpus):
         self.corpus = corpus
 

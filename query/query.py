@@ -84,18 +84,17 @@ class Query:
         elif model == 'doc2vec':
             res = Doc2Vec().predict(query_tokens, topic)
             return Query.format_query_result(questions_df, full_df, res)
-        elif model == 'mini-lm':
-            res = MiniLMModel().predict(query_tokens, topic)
+        elif model == 'minilm':
+            res = MiniLMModel().predict(query, topic)
             return Query.format_query_result(questions_df, full_df, res)
         elif model == 'bert':
-            pass
-            # res = FineTunedBertModel().predict(query, topic)
-            # return Query.format_query_result(questions_df, full_df, res)
+            res = DistilBertModel().predict(query, topic)
+            return Query.format_query_result(questions_df, full_df, res)
         elif model == 'multi-qa-minilm-torch':
-            res = MultiQAMiniLMWithTorch(topic).predict(query_tokens, topic)
+            res = MultiQAMiniLMWithTorch(topic).predict(query, topic)
             return Query.format_query_result(questions_df, full_df, res)
         elif model == 'distilbert':
-            res = DistilBertModel().predict(query_tokens, topic)
+            res = DistilBertModel().predict(query, topic)
             return Query.format_query_result(questions_df, full_df, res)
         else:
             print(f"{model} not implemented")

@@ -101,10 +101,11 @@ class Word2VecModel(Model):
 
 class LsiModel(Model):
     def train(self, topic: str):
-        corpus = Corpus.get_corpus(topic, title_only=True)
+        corpus = Corpus.get_corpus(topic)
         dictionary = super().create_dictionary(corpus)
         bow_corpus = super().corpus_to_bow(corpus, dictionary)
-        # TODO: adjust params (num_topics)
+
+        # train LSI model
         lsi = models.LsiModel(bow_corpus, id2word=dictionary, num_topics=250)
         # transform corpus to LSI space and index it
         index = similarities.MatrixSimilarity(lsi[bow_corpus])
