@@ -20,21 +20,22 @@ def import_xml_to_csv():
 
 
 def read_xml(xml_file_path):
-    # XML Parsing
-    tree = ET.parse(xml_file_path)
-    root = tree.getroot()
     _, site, _ = xml_file_path.split("\\")
     topic = site.split(".")[0]
 
-    # CSV Writing
     csv_file_path = os.path.join('./data/stackechange_csv', f'{site}-posts.csv')
     with open(csv_file_path, 'w', encoding='UTF8', newline='') as f:
         writer = csv.writer(f)
         writer.writerow(ATTRIBUTES)
-        for post_row in root:
-            post_dict = get_post_attributes(post_row, topic)
-            values = [normalize_string(v) for v in post_dict.values()]
-            writer.writerow(values)
+        for event, elem in ET.iterparse(xml_file_path, events=['start', 'end']):
+            if event == 'start':
+                pass
+            elif event == 'end':
+                post_dict = get_post_attributes(elem, topic)
+                values = [normalize_string(v) for v in post_dict.values()]
+                writer.writerow(values)
+                elem.clear()
+
 
 
 def write_csv(site: str, rows: List[Dict[str, str]]):

@@ -1,12 +1,13 @@
 <script lang="ts">
   import { TOPICS, MODELS } from "./costants";
-  import type { Results } from "./interfaces/results";
+  import type { Document, Response } from "./interfaces/results";
   import Loader from "./lib/Loader.svelte";
 
   let searchText = "What is the difference between IPA and Double IPA?";
   let topic = "beer";
   let model = "doc2vec";
-  let results: Results = [];
+  let documents: Document[] = [];
+  let responseTime: number;
   let isLoading = false;
   let showError = false;
 
@@ -25,8 +26,9 @@
     const qs = "?" + new URLSearchParams(params).toString();
     fetch(`http://localhost:8000/query${qs}`)
       .then((e) => e.json())
-      .then((res: Results) => {
-        results = res;
+      .then((res: Response) => {
+        documents = res.documents;
+        responseTime = res.response_time;
         showError = false;
       })
       .catch((e) => {
@@ -74,12 +76,17 @@
   </div>
 {:else if showError}
   An error has occured. Please try later.
-{:else}
+{:else if documents.length}
+  <div style="text-align: center">
+    <!-- <h2>Results</h2> -->
+    <h4>Response time: {responseTime.toFixed(2)}s</h4>
+  </div>
+
   <div class="results">
-    {#each results as res}
+    {#each documents as doc}
       <div class="card">
-        <h3>{res.question}</h3>
-        <p>{@html res.best_answer}</p>
+        <h3>{doc.question}</h3>
+        <p>{@html doc.best_answer}</p>
       </div>
     {/each}
   </div>

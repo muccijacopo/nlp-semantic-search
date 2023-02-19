@@ -1,4 +1,5 @@
 import json
+import datetime
 
 from corpus import Corpus
 from models import TfIdfModel, LsiModel, Word2VecModel, LdaModel, LsiTfidfModel, Doc2Vec, MiniLMModel, \
@@ -34,8 +35,9 @@ class Query:
             if answer is not None:
                 result.append({
                     'idx': sort_idx + 1,
+                    'question_id': int(question['Id']),
                     'question': question["Title"],
-                    'best_answer': answer["Body"]
+                    'best_answer': answer["Body"],
                 })
 
         if stdout:
