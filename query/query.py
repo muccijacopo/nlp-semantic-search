@@ -2,8 +2,7 @@ import json
 import datetime
 
 from corpus import Corpus
-from models import TfIdfModel, LsiModel, Word2VecModel, LdaModel, LsiTfidfModel, Doc2Vec, MiniLMModel, \
-    FineTunedBertModel, MultiQAMiniLMWithTorch, DistilBertModel, QuestionAnsweringDistilbertModel
+from models import TfIdfModel, LsiModel, Word2VecModel, LdaModel, LsiTfidfModel, Doc2Vec, MiniLMModel, MultiQAMiniLMWithTorch, DistilBertModel, GPTModel, QuestionAnsweringDistilbertModel
 from preprocessing import CustomPreprocessing
 
 
@@ -97,6 +96,9 @@ class Query:
             return Query.format_query_result(questions_df, full_df, res)
         elif model == 'distilbert':
             res = DistilBertModel().predict(query, topic)
+            return Query.format_query_result(questions_df, full_df, res)
+        elif model == 'gpt':
+            res = GPTModel().predict(query, topic)
             return Query.format_query_result(questions_df, full_df, res)
         else:
             print(f"{model} not implemented")

@@ -25,14 +25,10 @@ export const MODELS = [
   },
   {
     name: "BERT",
-    key: "bert",
-  },
-  {
-    name: "DistilBert",
     key: "distilbert",
   },
   {
-    name: "MiniLM",
-    key: "minilm",
+    name: "GPT",
+    key: "gpt",
   },
 ];

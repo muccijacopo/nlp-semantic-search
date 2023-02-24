@@ -2,7 +2,7 @@ import time
 import typer
 
 from importing import import_xml_to_csv
-from models import TfIdfModel, LsiModel, LdaModel, LsiTfidfModel, Doc2Vec, Word2VecModel, DistilBertModel
+from models import TfIdfModel, LsiModel, LdaModel, LsiTfidfModel, Doc2Vec, Word2VecModel, DistilBertModel, GPTModel
 from query import Query
 
 
@@ -22,6 +22,8 @@ def train_model(model: str, topic: str):
         Doc2Vec().train(topic)
     elif model == 'distilbert':
         DistilBertModel().train(topic)
+    elif model == 'gpt':
+        GPTModel().train(topic)
     else:
         print(f"{model} not implemented")
     end_time = time.time()

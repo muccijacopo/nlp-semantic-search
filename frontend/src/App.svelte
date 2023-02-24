@@ -24,7 +24,7 @@
       format: "documents",
     };
     const qs = "?" + new URLSearchParams(params).toString();
-    fetch(`http://localhost:8000/query${qs}`)
+    fetch(`http://localhost:8001/query${qs}`)
       .then((e) => e.json())
       .then((res: Response) => {
         documents = res.documents;

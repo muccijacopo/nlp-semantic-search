@@ -5,7 +5,7 @@ from sentence_transformers import SentenceTransformer, util, models, InputExampl
 import torch
 from torch.utils.data import DataLoader, Dataset
 from transformers import AutoTokenizer, AutoModel, GPT2Tokenizer, GPT2Model, pipeline, set_seed, \
-    QuestionAnsweringPipeline
+    QuestionAnsweringPipeline, OpenAIGPTModel
 
 from models import Model
 from corpus import Corpus
@@ -150,6 +150,71 @@ class DistilBertModel(Model):
         # corpus_embeddings = self.encode(self.corpus)
         query_embeddings = self.encode(query)
 
+        corpus_embeddings = torch.load(self.get_tensor_file_name(topic))
+
+        # Compute dot score between query and all document embeddings
+        scores = torch.mm(query_embeddings, corpus_embeddings.transpose(0, 1))[0].cpu().tolist()
+
+        # Sort docs by similarity score
+        docs_similarity_sorted = sorted(enumerate(scores), key=lambda x: x[1], reverse=True)
+
+        return docs_similarity_sorted[:10]
+
+
+class GPTModel(Model):
+
+    MODEL_NAME = "openai-gpt"
+
+    def __init__(self):
+        self.tokenizer = AutoTokenizer.from_pretrained(self.MODEL_NAME)
+        if self.tokenizer.pad_token is None:
+            self.tokenizer.add_special_tokens({'pad_token': '[PAD]'})
+        self.model = OpenAIGPTModel.from_pretrained(self.MODEL_NAME)
+        self.model.resize_token_embeddings(len(self.tokenizer))
+
+    @classmethod
+    def get_tensor_file_name(cls, topic: str):
+        return f'models/stored_models/{topic}_gpt.pt'
+
+    @classmethod
+    def mean_pooling(cls, model_output, attention_mask):
+        token_embeddings = model_output[0]
+        input_mask_expanded = attention_mask.unsqueeze(-1).expand(token_embeddings.size()).float()
+        sum_embeddings = torch.sum(token_embeddings * input_mask_expanded, 1)
+        sum_mask = torch.clamp(input_mask_expanded.sum(1), min=1e-9)
+        return sum_embeddings / sum_mask
+
+    def encode(self, docs):
+        encoded_input = self.tokenizer(docs, padding=True, truncation=True, return_tensors='pt')
+        with torch.no_grad():
+            model_output = self.model(**encoded_input, return_dict=True)
+
+        embeddings = self.mean_pooling(model_output, encoded_input['attention_mask'])
+        embeddings = torch.nn.functional.normalize(embeddings, p=2, dim=1)
+        return embeddings
+
+    def train(self, topic: str):
+        corpus = Corpus.get_corpus(topic, tokenize=False)
+        corpus_dataset = CorpusWithTorchDataset(corpus)
+        loader_params = {
+            'batch_size': 100,
+            'num_workers': 8
+        }
+        corpus_dataloader = DataLoader(corpus_dataset, **loader_params)
+        corpus_embeddings = None
+        iteration = 0
+        for corpus_batch in corpus_dataloader:
+            iteration += 1
+            print(f"Iteration {iteration}. Processed records {iteration * loader_params['batch_size']}")
+            if corpus_embeddings is None:
+                corpus_embeddings = self.encode(corpus_batch)
+            else:
+                corpus_embeddings = torch.cat((corpus_embeddings, self.encode(corpus_batch)), 0)
+
+        torch.save(corpus_embeddings, self.get_tensor_file_name(topic))
+
+    def predict(self, query: str, topic: str):
+        query_embeddings = self.encode(query)
         corpus_embeddings = torch.load(self.get_tensor_file_name(topic))
 
         # Compute dot score between query and all document embeddings
