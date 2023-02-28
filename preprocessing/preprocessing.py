@@ -54,7 +54,9 @@ class CustomPreprocessing:
             doc = CustomPreprocessing.remove_html(doc)
             doc = CustomPreprocessing.remove_special_characters(doc)
         if tokenize:
-            return CustomPreprocessing.tokenize_sentence(doc)
+            tokens = CustomPreprocessing.tokenize_sentence(doc)
+            tokens = CustomPreprocessing.remove_stopwords(tokens)
+            return tokens
         else:
             return doc
 
