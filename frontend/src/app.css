@@ -1,13 +1,13 @@
 :root {
-  font-family: Inter, Avenir, Helvetica, Arial, sans-serif;
+  font-family: Arial, sans-serif;
   font-size: 16px;
   line-height: 24px;
   font-weight: 400;
 
-  color-scheme: light dark;
-  background-color: #242424;
-  --primary-color: #2386b4;
-  --color-white: #ffffffde;
+  background-color: #f5f5f5;
+  --primary-color: #353535;
+  --secondary-color: #ffffff;
+  --link-color: #49b6f0;
   
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -16,8 +16,15 @@
   -webkit-text-size-adjust: 100%;
   
   --border-color: var(--color-white);
-  --content-bg: #373737;
   --border-radius: 5px;
+}
+
+a {
+  color: var(--link-color);
+}
+
+h1,h2,h3,h4,h5,h6, p {
+  color: var(--primary-color);
 }
 
 body {
@@ -34,26 +41,23 @@ body {
 button {
   all: unset;
   padding: 5px 20px;
-  background: var(--content-bg);
-  border: 1px solid var(--border-color);
+  background: var(--primary-color);
+  color: var(--secondary-color);
   border-radius: var(--border-radius);
 }
 button:hover {
   filter: brightness(120%);
 }
-button:focus {
-  border: 2px solid var(--border-color);
-}
 
 select {
+  border-color: var(--primary-color);
   border-radius: var(--border-radius);
-  border-color: var(--border-color);
 }
 
 input {
-  border: 1px solid var(--border-color);
+  border: none;
+  border: 1px solid var(--primary-color);
   border-radius: var(--border-radius);
-  border-color: var(--border-color);
 }
 
 .d-flex {
