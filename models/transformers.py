@@ -5,7 +5,7 @@ from sentence_transformers import SentenceTransformer, util, models, InputExampl
 import torch
 from torch.utils.data import DataLoader, Dataset
 from transformers import AutoTokenizer, AutoModel, GPT2Tokenizer, GPT2Model, pipeline, set_seed, \
-    QuestionAnsweringPipeline, OpenAIGPTModel
+    QuestionAnsweringPipeline, OpenAIGPTModel, berttoke
 
 from models import Model
 from corpus import Corpus
