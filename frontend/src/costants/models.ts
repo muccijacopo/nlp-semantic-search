@@ -1,8 +1,8 @@
 export const MODELS = [
-  {
-    name: "TF-IDF",
-    key: "tfidf",
-  },
+  // {
+  //   name: "TF-IDF",
+  //   key: "tfidf",
+  // },
   {
     name: "Word2Vec",
     key: "word2vec",
@@ -12,11 +12,11 @@ export const MODELS = [
     key: "doc2vec",
   },
   {
-    name: "LSI",
-    key: "lsi",
+    name: "FastText",
+    key: "fastext",
   },
   {
-    name: "LSI+TFIDF",
+    name: "LSI",
     key: "lsi-tfidf",
   },
   {
@@ -24,8 +24,12 @@ export const MODELS = [
     key: "lda",
   },
   {
-    name: "BERT",
+    name: "DistilBERT",
     key: "distilbert",
+  },
+  {
+    name: "RoBERTa",
+    key: "roberta",
   },
   {
     name: "GPT",

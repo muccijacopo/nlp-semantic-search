@@ -45,13 +45,12 @@
   <div class="header">
     <h1>This is a semantic search engine.</h1>
     <p>
-      The project aims to recreate a semantic search engine using Natural
+      This project aims to recreate a semantic search engine using Natural
       Language Processing and Deep Learning techniques. The search experience
-      can be customized using a different language model. Search results will
-      depend on the model used and the data set. This project is a work related
-      to a Computer Engineering Master Thesis at Roma Tre University: "Natural
-      Language Processing and Deep Learning Techniques for a Semantic Search
-      Engine". <br />
+      can be customized using a different language model. <br />
+      This project is a work related to a Computer Engineering Master Thesis at Roma
+      Tre University: "Natural Language Processing and Deep Learning Techniques for
+      a Semantic Search Engine". <br />
       Source code can be found on
       <a href="https://github.com/muccijacopo">Github</a>
     </p>
@@ -68,7 +67,7 @@
           <option value={model.key}>{model.name}</option>
         {/each}
       </select>
-      <h3>Dataset</h3>
+      <h3>Topic</h3>
       <select bind:value={topic}>
         {#each topics as topic}
           <option value={topic.key}>{topic.name}</option>
@@ -94,7 +93,7 @@
 {:else if documents.length}
   <div style="text-align: center">
     <!-- <h2>Results</h2> -->
-    <h4>Response time: {responseTime.toFixed(2)}s</h4>
+    <!-- <h4>Response time: {responseTime.toFixed(2)}s</h4> -->
   </div>
 
   <div class="results">
@@ -156,6 +155,5 @@
     border-radius: var(--border-radius);
     padding: 10px 20px;
     text-align: left;
-    overflow-wrap: normal;
   }
 </style>
